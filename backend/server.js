@@ -1,12 +1,16 @@
+// ⚠️ dotenv.config() MUST be first — before any require() that reads process.env
+// (cloudinary.js, geminiService.js etc. read env vars at load time)
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const connectDB = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const uploadRoutes = require('./src/routes/upload');
 const aiRoutes = require('./src/routes/aiRoutes');
+const inspectionRoutes = require('./src/routes/inspectionRoutes');
 
-dotenv.config();
 connectDB();
 
 const app = express();
@@ -16,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/inspections', inspectionRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'LegalMetrix AI backend is running' });

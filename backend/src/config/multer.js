@@ -1,15 +1,28 @@
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary-v2');
-const cloudinary = require('./cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'legalmetrix', // Cloudinary pe is naam ka folder ban jayega
-    allowed_formats: ['jpg', 'jpeg', 'png'],
-  },
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Store file in memory buffer (not disk) so we can stream it to Cloudinary manually
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-module.exports = upload;
+// Helper: upload buffer to Cloudinary and return the secure URL
+const uploadToCloudinary = (buffer, filename) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'legalmetrix', public_id: filename },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+};
+
+module.exports = { upload, uploadToCloudinary };
