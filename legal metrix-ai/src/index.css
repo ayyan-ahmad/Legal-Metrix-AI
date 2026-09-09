@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────── */
+:root {
+    --navy: #162447;
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --amber: #B5720F;
+    --amber-light: #FAEEDA;
+    --danger: #A32D2D;
+    --danger-light: #FCEBEB;
+    --success: #3B6D11;
+    --success-light: #EAF3DE;
+    --ink: #1F2A44;
+    --muted: #5B6478;
+    --border: #D8DCE3;
+    --surface: #FFFFFF;
+    --bg: #F7F7F5;
+}
+
+/* ── Base reset ────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+a {
+    color: var(--teal);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ── Tailwind theme extension via @theme ──────────── */
+@theme {
+    --color-navy: #162447;
+    --color-teal: #0F6E56;
+    --color-teal-light: #E1F5EE;
+    --color-amber: #B5720F;
+    --color-amber-light: #FAEEDA;
+    --color-danger: #A32D2D;
+    --color-danger-light: #FCEBEB;
+    --color-success: #3B6D11;
+    --color-success-light: #EAF3DE;
+    --color-ink: #1F2A44;
+    --color-muted: #5B6478;
+    --color-border: #D8DCE3;
+    --color-surface: #FFFFFF;
+    --color-bg: #F7F7F5;
+    --font-family-sans: 'Inter', sans-serif;
+}

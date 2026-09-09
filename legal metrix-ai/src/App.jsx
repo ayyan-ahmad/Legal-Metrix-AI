@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import { useAuth } from './context/AuthContext';
 import ScanProduct from './pages/ScanProduct';
+import History from './pages/History';
+import Analytics from './pages/Analytics';
 
 function App() {
   const { user } = useAuth();
@@ -23,7 +25,6 @@ function App() {
           )
         }
       />
-      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
       <Route
         path="/scan"
         element={
@@ -36,6 +37,31 @@ function App() {
           )
         }
       />
+      <Route
+        path="/history"
+        element={
+          user ? (
+            <Layout>
+              <History />
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          user ? (
+            <Layout>
+              <Analytics />
+            </Layout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
     </Routes>
   );
 }

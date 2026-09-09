@@ -24,7 +24,7 @@ exports.createInspection = async (req, res) => {
 
     // Step A: Gemini extraction
     console.log('\n[Step A] Calling Gemini for product info extraction...');
-    const extractedData = await extractProductInfo(imageUrl);
+    const extractedData = await extractProductInfo(req.file.buffer, req.file.mimetype);
     console.log('[Step A] ✅ Extracted Data:', JSON.stringify(extractedData, null, 2));
 
     // Step B: Rule engine compliance check
@@ -59,11 +59,15 @@ exports.createInspection = async (req, res) => {
   }
 };
 
-
-
+// User-scoped Inspections fetch:
+// - Admin role: Can view ALL inspections across all users
+// - Officer role: Can ONLY view their OWN inspections
 exports.getInspections = async (req, res) => {
   try {
-    const inspections = await Inspection.find().populate('officer', 'name email').sort({ createdAt: -1 });
+    const filter = req.user.role === 'admin' ? {} : { officer: req.user.id };
+    const inspections = await Inspection.find(filter)
+      .populate('officer', 'name email')
+      .sort({ createdAt: -1 });
     res.json(inspections);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -76,6 +80,12 @@ exports.getInspectionById = async (req, res) => {
     if (!inspection) {
       return res.status(404).json({ message: 'Inspection not found' });
     }
+
+    // Access control check
+    if (req.user.role !== 'admin' && inspection.officer._id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied: You are not authorized to view this inspection.' });
+    }
+
     res.json(inspection);
   } catch (error) {
     res.status(500).json({ message: error.message });

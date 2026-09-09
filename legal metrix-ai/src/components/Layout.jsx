@@ -2,9 +2,11 @@ import Navbar from './Navbar';
 
 function Layout({ children }) {
   return (
-    <div>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg)' }}>
       <Navbar />
-      <div style={{ padding: '20px' }}>{children}</div>
+      <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
+        {children}
+      </main>
     </div>
   );
 }

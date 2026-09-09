@@ -1,31 +1,40 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const { checkCompliance } = require('./ruleEngine');
+const { extractProductInfo } = require('../services/geminiService');
 
 dotenv.config();
 
+// ─────────────────────────────────────────────────────────────
+// Photo ka local path ya URL yahan do:
+// Local file path: 'C:/Users/ayyan/Desktop/test.jpg'
+// Online image URL: 'https://example.com/product.jpg'
+// ─────────────────────────────────────────────────────────────
+const IMAGE_INPUT = 'C:/Users/ayyan/Desktop/test.jpg';
+
 async function test() {
-    await mongoose.connect(process.env.MONGO_URI);
+  console.log('\n🔌 Connecting to MongoDB...');
+  await mongoose.connect(process.env.MONGO_URI);
+  console.log('✅ Connected!\n');
 
-    // Fake data - jaisa Gemini se aa sakta hai
-    const fakeExtractedData = {
-        productName: 'XYZ Atta',
-        mrp: '299',
-        netQuantity: '5 kg',
-        manufacturer: 'XYZ Foods',
-        consumerCare: null, // ye missing hai - violation expected
-        manufacturingDate: '08/2026',
-        confidence: {
-            mrp: 0.95,
-            netQuantity: 0.9,
-            manufacturer: 0.6, // ye low hai - review expected
-            manufacturingDate: 0.85,
-        },
-    };
+  console.log(`🖼️  Image Input: ${IMAGE_INPUT}`);
+  console.log('🤖 Gemini image analyze kar raha hai (via geminiService)... \n');
 
-    const result = await checkCompliance(fakeExtractedData);
-    console.log(JSON.stringify(result, null, 2));
-    process.exit();
+  const extractedData = await extractProductInfo(IMAGE_INPUT);
+
+  console.log('📦 Gemini ka extracted output:');
+  console.log(JSON.stringify(extractedData, null, 2));
+
+  console.log('\n⚙️  Rule engine compliance check chal raha hai...\n');
+  const compliance = await checkCompliance(extractedData);
+
+  console.log('🎯 FINAL COMPLIANCE RESULT:');
+  console.log(JSON.stringify(compliance, null, 2));
+
+  process.exit(0);
 }
 
-test();
+test().catch((err) => {
+  console.error('❌ Error:', err.message);
+  process.exit(1);
+});
