@@ -24,7 +24,7 @@ function Login() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('officer');
+  const [role, setRole] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -306,6 +306,7 @@ function Login() {
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
+                    required
                     style={{
                       width: '100%',
                       padding: '10px 12px 10px 36px',
@@ -318,6 +319,7 @@ function Login() {
                       cursor: 'pointer',
                     }}
                   >
+                    <option value="" disabled selected hidden>Select Role</option>
                     <option value="officer">Compliance Officer</option>
                     <option value="admin">System Administrator</option>
                   </select>

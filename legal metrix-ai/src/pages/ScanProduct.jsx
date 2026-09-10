@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import API from '../api/axios';
 import EvidencePanel from '../components/EvidencePanel';
 import {
@@ -6,17 +6,19 @@ import {
   AlertCircle,
   Loader2,
   Upload,
-  Image as ImageIcon,
   CheckCircle2,
   XCircle,
   AlertTriangle,
   ShieldCheck,
   Sparkles,
-  FileText,
   RotateCcw,
   Tag,
   Info,
+  Layers,
+  ImagePlus,
+  ChevronRight,
 } from 'lucide-react';
+
 
 const statusStyle = (status) => ({
   pass: {
