@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import API from '../api/axios';
+import API, { API_BASE_URL } from '../api/axios';
 import EvidencePanel from '../components/EvidencePanel';
 import {
   History as HistoryIcon,
@@ -463,7 +463,7 @@ function History() {
                   onClick={() => {
                     const token = localStorage.getItem('token');
                     window.open(
-                      `http://localhost:5000/api/reports/generate/${selected._id}?token=${token}`,
+                      `${API_BASE_URL}/reports/generate/${selected._id}?token=${token}`,
                       '_blank'
                     );
                   }}
