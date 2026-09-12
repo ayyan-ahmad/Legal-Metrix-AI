@@ -8,7 +8,8 @@ const {
 const protect = require('../middleware/authMiddleware');
 const { upload } = require('../config/multer');
 
-router.post('/', protect, upload.single('image'), createInspection);
+
+router.post('/', protect, upload.array('images', 5), createInspection);
 router.get('/', protect, getInspections);
 router.get('/:id', protect, getInspectionById);
 

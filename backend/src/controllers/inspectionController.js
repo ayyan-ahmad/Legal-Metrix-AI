@@ -1,5 +1,5 @@
 const Inspection = require('../models/Inspection');
-const { extractProductInfo } = require('../services/geminiService');
+const { extractFromMultipleImages } = require('../services/geminiService');
 const { checkCompliance } = require('../utils/ruleEngine');
 const { uploadToCloudinary } = require('../config/multer');
 
@@ -8,24 +8,36 @@ exports.createInspection = async (req, res) => {
     const { productName } = req.body;
     console.log('\n========== NEW INSPECTION REQUEST ==========');
     console.log('Product Name:', productName);
-    console.log('File received:', req.file ? `${req.file.originalname} (${req.file.size} bytes)` : 'NO FILE');
+    console.log('Files received:', req.files ? req.files.length : 0);
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'Product image is required' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'At least one product image is required' });
     }
 
-    // Step 0: Upload to Cloudinary
-    console.log('\n[Step 0] Uploading image to Cloudinary...');
-    const imageUrl = await uploadToCloudinary(
-      req.file.buffer,
-      `${Date.now()}-${req.file.originalname}`
-    );
-    console.log('[Step 0] ✅ Cloudinary URL:', imageUrl);
+    // Step 0: Sab images ko Cloudinary pe upload karo (ek-ek karke, sequentially)
+    // Kyun sequential? Parallel Promise.all() bhi chalega yahan (Cloudinary rate-limit
+    // itna strict nahi hota jitna Gemini free-tier), lekin consistency ke liye
+    // aur logs clean rakhne ke liye hum yahan bhi ek-ek karke upload kar rahe hain.
+    console.log('\n[Step 0] Uploading images to Cloudinary...');
+    const imageUrls = [];
+    for (let i = 0; i < req.files.length; i++) {
+      const file = req.files[i];
+      const url = await uploadToCloudinary(file.buffer, `${Date.now()}-${i}-${file.originalname}`);
+      imageUrls.push(url);
+      console.log(`[Step 0] ✅ Image ${i + 1}/${req.files.length} uploaded:`, url);
+    }
 
-    // Step A: Gemini extraction
-    console.log('\n[Step A] Calling Gemini for product info extraction...');
-    const extractedData = await extractProductInfo(req.file.buffer, req.file.mimetype);
-    console.log('[Step A] ✅ Extracted Data:', JSON.stringify(extractedData, null, 2));
+    // Step A: Gemini extraction - har image ko SEQUENTIALLY process karta hai,
+    // ek fail ho toh baaki continue rahenge (rate-limit safe)
+    console.log('\n[Step A] Calling Gemini for multi-image extraction...');
+    const imageBuffers = req.files.map((file) => file.buffer);
+    const { extractedData, processedCount, totalCount, failedImages } =
+      await extractFromMultipleImages(imageBuffers);
+    console.log(
+      `[Step A] ✅ Processed ${processedCount}/${totalCount} images.`,
+      failedImages.length > 0 ? `Failed: ${JSON.stringify(failedImages)}` : ''
+    );
+    console.log('[Step A] Merged Extracted Data:', JSON.stringify(extractedData, null, 2));
 
     // Step B: Rule engine compliance check
     console.log('\n[Step B] Running compliance rule engine...');
@@ -36,7 +48,7 @@ exports.createInspection = async (req, res) => {
     console.log('\n[Step C] Saving inspection to MongoDB...');
     const inspection = await Inspection.create({
       productName,
-      images: [imageUrl],
+      images: imageUrls, // ab poora array save ho raha hai
       extractedData,
       violations,
       complianceScore,
@@ -49,6 +61,11 @@ exports.createInspection = async (req, res) => {
     res.status(201).json({
       message: 'Inspection completed',
       inspection,
+      imageProcessingInfo: {
+        processedCount,
+        totalCount,
+        failedImages,
+      },
     });
   } catch (error) {
     console.error('\n❌ createInspection FAILED');

@@ -107,4 +107,78 @@ async function extractProductInfo(imageInput, mimeType = 'image/jpeg') {
   }
 }
 
-module.exports = { extractProductInfo };
+// Chhota helper - X milliseconds ke liye rukta hai (rate limit se bachne ke liye)
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Multiple images ko SEQUENTIALLY process karta hai (ek-ek karke, parallel nahi)
+// Taaki free-tier rate limits na tootein, aur ek image fail ho toh baaki continue rahein
+async function extractFromMultipleImages(imageInputs) {
+  const successfulExtractions = [];
+  const failedImages = []; // kaunsi image fail hui, aur kyun
+
+  for (let i = 0; i < imageInputs.length; i++) {
+    const input = imageInputs[i];
+
+    try {
+      const extraction = await extractProductInfo(input);
+      successfulExtractions.push(extraction);
+    } catch (error) {
+      // Ye image fail hui - lekin loop ROOKO mat, note karke aage badho
+      console.error(`Image ${i + 1} failed:`, error.message);
+
+      const isRateLimit =
+        error.message?.includes('429') ||
+        error.message?.toLowerCase().includes('rate limit') ||
+        error.message?.toLowerCase().includes('quota');
+
+      failedImages.push({
+        imageIndex: i + 1,
+        reason: isRateLimit
+          ? 'Rate limit reached - too many requests to AI service'
+          : error.message || 'Could not analyze this image',
+      });
+    }
+
+    // Har image ke baad 500ms ruko - agli image se pehle Gemini ko "breathing room" dena
+    if (i < imageInputs.length - 1) {
+      await delay(500);
+    }
+  }
+
+  // Agar EK bhi image successfully process nahi hui, toh poora request fail maano
+  if (successfulExtractions.length === 0) {
+    throw new Error('All images failed to process. Please try again with clearer photos.');
+  }
+
+  // Jitni bhi images successful hui, unko merge karo - har field ke liye,
+  // jis image ka confidence sabse zyada hai, uski value final answer banegi
+  const merged = {};
+  const mergedConfidence = {};
+
+  successfulExtractions.forEach((extraction) => {
+    Object.keys(extraction).forEach((field) => {
+      if (field === 'confidence') return; // confidence ko alag se handle kar rahe hain
+
+      const currentConfidence = extraction.confidence?.[field] ?? 0;
+      const existingConfidence = mergedConfidence[field] ?? -1;
+
+      if (currentConfidence > existingConfidence) {
+        merged[field] = extraction[field];
+        mergedConfidence[field] = currentConfidence;
+      }
+    });
+  });
+
+  merged.confidence = mergedConfidence;
+
+  return {
+    extractedData: merged,
+    processedCount: successfulExtractions.length,
+    totalCount: imageInputs.length,
+    failedImages,
+  };
+}
+
+module.exports = { extractProductInfo, extractFromMultipleImages };
