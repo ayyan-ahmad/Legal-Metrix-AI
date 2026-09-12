@@ -5,10 +5,10 @@ function EvidencePanel({ extractedData, violations, imageUrl }) {
   const fields = Object.keys(extractedData).filter((key) => key !== 'confidence');
 
   return (
-    <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+    <div className="flex flex-col sm:flex-row gap-5 sm:gap-6">
       {/* Left — product image */}
       {imageUrl && (
-        <div style={{ flex: '0 0 220px' }}>
+        <div className="w-full sm:w-[220px] shrink-0">
           <p style={{
             fontSize: '12px', fontWeight: 600, color: 'var(--muted)',
             textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px',
@@ -17,21 +17,22 @@ function EvidencePanel({ extractedData, violations, imageUrl }) {
             <ImageIcon size={12} strokeWidth={2} />
             Product Image
           </p>
-          <img
-            src={imageUrl}
-            alt="product"
-            style={{
-              width: '100%',
-              borderRadius: '10px',
-              border: '1px solid var(--border)',
-              boxShadow: '0 2px 8px rgba(22,36,71,0.08)',
-            }}
-          />
+          <div className="w-full flex justify-center bg-[var(--bg)] rounded-xl p-2 border border-[var(--border)]">
+            <img
+              src={imageUrl}
+              alt="product"
+              style={{
+                borderRadius: '8px',
+                maxHeight: '260px',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
         </div>
       )}
 
       {/* Right — field-by-field breakdown */}
-      <div style={{ flex: 1, minWidth: '280px' }}>
+      <div className="w-full flex-1 min-w-0">
         <p style={{
           fontSize: '12px', fontWeight: 600, color: 'var(--muted)',
           textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '10px',
@@ -48,19 +49,15 @@ function EvidencePanel({ extractedData, violations, imageUrl }) {
             return (
               <div
                 key={field}
+                className="flex items-center justify-between p-3 sm:p-[12px_14px] rounded-lg gap-3"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '12px 14px',
-                  borderRadius: '8px',
                   backgroundColor: isMissing ? 'var(--danger-light)' : 'var(--teal-light)',
                   borderLeft: `4px solid ${isMissing ? 'var(--danger)' : 'var(--teal)'}`,
                   border: `1px solid ${isMissing ? 'var(--danger)' : 'var(--border)'}`,
                   borderLeftWidth: '4px',
                 }}
               >
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)', marginBottom: '2px' }}>
                     {formatFieldName(field)}
                   </div>
@@ -68,12 +65,13 @@ function EvidencePanel({ extractedData, violations, imageUrl }) {
                     fontSize: '13px',
                     color: value ? 'var(--ink)' : 'var(--muted)',
                     fontStyle: value ? 'normal' : 'italic',
+                    wordBreak: 'break-word',
                   }}>
                     {value || 'Not detected on package'}
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right', marginLeft: '12px', flexShrink: 0 }}>
+                <div style={{ textAlign: 'right', marginLeft: '8px', flexShrink: 0 }}>
                   {isMissing
                     ? <XCircle size={20} color="var(--danger)" strokeWidth={2} />
                     : <CheckCircle2 size={20} color="var(--teal)" strokeWidth={2} />
@@ -84,6 +82,7 @@ function EvidencePanel({ extractedData, violations, imageUrl }) {
                       color: confidence >= 0.7 ? 'var(--teal)' : confidence >= 0.4 ? 'var(--amber)' : 'var(--danger)',
                       fontWeight: 600,
                       marginTop: '4px',
+                      whiteSpace: 'nowrap',
                     }}>
                       {Math.round(confidence * 100)}% conf.
                     </div>

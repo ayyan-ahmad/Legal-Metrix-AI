@@ -172,20 +172,24 @@ function ScanProduct() {
 
   return (
     <div style={{ paddingBottom: '50px' }}>
+
       {/* ── 1. Page Header Banner ────────────────────────────── */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--navy) 0%, #173256 60%, #0F6E56 100%)',
-        borderRadius: '20px',
-        padding: '28px 32px',
-        color: '#FFFFFF',
-        marginBottom: '28px',
-        boxShadow: '0 8px 24px rgba(22,36,71,0.15)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '20px',
-      }}>
+      {/* Mobile: reduced padding, stacked; Desktop: same flex-row layout */}
+      <div
+        className="!px-5 sm:!px-8 !py-6 sm:!py-7"
+        style={{
+          background: 'linear-gradient(135deg, var(--navy) 0%, #173256 60%, #0F6E56 100%)',
+          borderRadius: '20px',
+          color: '#FFFFFF',
+          marginBottom: '28px',
+          boxShadow: '0 8px 24px rgba(22,36,71,0.15)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
         <div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -195,19 +199,23 @@ function ScanProduct() {
             <Sparkles size={14} color="var(--teal-light)" />
             AI Computer Vision Scanner
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+          <h1 className="text-xl sm:text-[26px]" style={{ fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
             Automated Product Inspection
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: '14px', marginTop: '4px', margin: 0 }}>
+          <p className="text-xs sm:text-sm" style={{ color: 'rgba(255,255,255,0.78)', marginTop: '4px', margin: 0 }}>
             Upload package photos to extract mandatory declarations and check compliance against Indian Legal Metrology Rules.
           </p>
         </div>
 
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px',
-          border: '1px solid rgba(255,255,255,0.2)'
-        }}>
+        {/* Shield badge — hide on very small mobile to save space */}
+        <div
+          className="hidden sm:flex"
+          style={{
+            alignItems: 'center', gap: '8px',
+            backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.2)'
+          }}
+        >
           <ShieldCheck size={20} color="var(--teal-light)" />
           <span style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
             5 Mandatory Rules Ready
@@ -215,7 +223,7 @@ function ScanProduct() {
         </div>
       </div>
 
-      {/* ── 2. Two-Column Layout (Form + Guidelines) ───────────── */}
+      {/* ── Keyframe animations ── */}
       {loading && (
         <style>{`
           @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -240,7 +248,11 @@ function ScanProduct() {
       )}
 
       {!result ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+        /* ── 2. Two-Column Layout (Form + Guidelines) ───────────── */
+        /* Mobile: single column stack; Desktop: auto-fit 2-col grid (unchanged) */
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr] gap-6"
+          style={{ gridTemplateColumns: undefined }}
+        >
           {/* Left Column — Form or Loading Overlay */}
           <div style={{
             backgroundColor: 'var(--surface)',
@@ -345,6 +357,7 @@ function ScanProduct() {
               </div>
             )}
             {/* ── END LOADING OVERLAY ── */}
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Product Name */}
               <div>
@@ -455,13 +468,12 @@ function ScanProduct() {
                 <div style={{
                   borderRadius: '12px',
                   overflow: 'hidden',
-                  border: `1px solid ${
-                    error.type === 'network' ? '#C84B31' :
-                    error.type === 'auth'    ? 'var(--amber)' :
-                    error.type === 'image'   ? '#6B4EFF' :
-                    error.type === 'server'  ? 'var(--danger)' :
-                    'var(--danger)'
-                  }44`,
+                  border: `1px solid ${error.type === 'network' ? '#C84B31' :
+                      error.type === 'auth' ? 'var(--amber)' :
+                        error.type === 'image' ? '#6B4EFF' :
+                          error.type === 'server' ? 'var(--danger)' :
+                            'var(--danger)'
+                    }44`,
                   animation: 'step-slide 0.3s ease forwards',
                 }}>
                   {/* Colored top bar */}
@@ -469,10 +481,10 @@ function ScanProduct() {
                     height: '4px',
                     background: (
                       error.type === 'network' ? 'linear-gradient(90deg, #C84B31, #E8735A)' :
-                      error.type === 'auth'    ? 'linear-gradient(90deg, var(--amber), #E8A83A)' :
-                      error.type === 'image'   ? 'linear-gradient(90deg, #6B4EFF, #9B78FF)' :
-                      error.type === 'server'  ? 'linear-gradient(90deg, var(--danger), #C84040)' :
-                      'linear-gradient(90deg, var(--danger), #C84040)'
+                        error.type === 'auth' ? 'linear-gradient(90deg, var(--amber), #E8A83A)' :
+                          error.type === 'image' ? 'linear-gradient(90deg, #6B4EFF, #9B78FF)' :
+                            error.type === 'server' ? 'linear-gradient(90deg, var(--danger), #C84040)' :
+                              'linear-gradient(90deg, var(--danger), #C84040)'
                     ),
                   }} />
                   <div style={{
@@ -485,23 +497,22 @@ function ScanProduct() {
                       width: '38px', height: '38px', borderRadius: '10px', flexShrink: 0,
                       backgroundColor: (
                         error.type === 'network' ? '#C84B3120' :
-                        error.type === 'auth'    ? 'var(--amber-light)' :
-                        error.type === 'image'   ? '#6B4EFF18' :
-                        'var(--danger-light)'
+                          error.type === 'auth' ? 'var(--amber-light)' :
+                            error.type === 'image' ? '#6B4EFF18' :
+                              'var(--danger-light)'
                       ),
-                      border: `1px solid ${
-                        error.type === 'network' ? '#C84B3130' :
-                        error.type === 'auth'    ? 'var(--amber)44' :
-                        error.type === 'image'   ? '#6B4EFF30' :
-                        'var(--danger)30'
-                      }`,
+                      border: `1px solid ${error.type === 'network' ? '#C84B3130' :
+                          error.type === 'auth' ? 'var(--amber)44' :
+                            error.type === 'image' ? '#6B4EFF30' :
+                              'var(--danger)30'
+                        }`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       <AlertCircle size={18} color={
                         error.type === 'network' ? '#C84B31' :
-                        error.type === 'auth'    ? 'var(--amber)' :
-                        error.type === 'image'   ? '#6B4EFF' :
-                        'var(--danger)'
+                          error.type === 'auth' ? 'var(--amber)' :
+                            error.type === 'image' ? '#6B4EFF' :
+                              'var(--danger)'
                       } strokeWidth={2.2} />
                     </div>
 
@@ -647,38 +658,41 @@ function ScanProduct() {
             border: '1px solid var(--border)',
             borderTop: `5px solid ${st.border}`,
             borderRadius: '20px',
-            padding: '32px',
             boxShadow: '0 8px 30px rgba(22,36,71,0.08)',
             animation: 'fadeIn 0.3s ease-in-out',
-          }}>
-            {/* Header Result Bar */}
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              flexWrap: 'wrap', gap: '16px', marginBottom: '24px', paddingBottom: '20px',
-              borderBottom: '1px solid var(--border)',
-            }}>
+          }}
+            className="p-5 sm:p-8"
+          >
+            {/* Header Result Bar — mobile: stacked, desktop: row */}
+            <div
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-5"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
+                {/* Product name + status badge — wrap on mobile */}
+                <div className="flex flex-wrap items-center gap-3 mb-1">
+                  <h2 className="text-xl sm:text-2xl" style={{ fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
                     {result.productName || 'Inspection Result'}
                   </h2>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     backgroundColor: st.bg, color: st.text,
                     padding: '5px 16px', borderRadius: '99px', fontSize: '13px', fontWeight: 800,
-                    border: `1px solid ${st.border}44`, letterSpacing: '0.5px'
+                    border: `1px solid ${st.border}44`, letterSpacing: '0.5px',
+                    whiteSpace: 'nowrap',
                   }}>
                     {st.Icon && <st.Icon size={16} strokeWidth={2.5} />}
                     {st.label}
                   </span>
                 </div>
-                <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px', margin: 0 }}>
-                  Inspection ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace' }}>{result._id}</strong>
+                <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0 }}>
+                  Inspection ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace', wordBreak: 'break-all' }}>{result._id}</strong>
                 </p>
               </div>
 
               <button
                 onClick={resetForm}
+                className="w-full sm:w-auto justify-center"
                 style={{
                   backgroundColor: 'var(--navy)',
                   color: '#FFFFFF',

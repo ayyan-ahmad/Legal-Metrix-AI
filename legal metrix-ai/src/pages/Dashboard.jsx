@@ -41,6 +41,7 @@ function StatCard({ count, label, subtext, borderColor, bgColor, textColor, Icon
         transition: 'all 0.22s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
+        minWidth: 0,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -52,6 +53,7 @@ function StatCard({ count, label, subtext, borderColor, bgColor, textColor, Icon
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          flexShrink: 0,
         }}>
           <Icon size={22} color={textColor} strokeWidth={2.2} />
         </div>
@@ -63,6 +65,7 @@ function StatCard({ count, label, subtext, borderColor, bgColor, textColor, Icon
             borderRadius: '99px',
             backgroundColor: borderColor + '18',
             color: textColor,
+            whiteSpace: 'nowrap',
           }}>
             {percentage}%
           </span>
@@ -124,7 +127,7 @@ function Dashboard() {
 
   const filteredInspections = inspections.filter((item) => {
     const matchesSearch = item.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item._id?.toLowerCase().includes(searchQuery.toLowerCase());
+      item._id?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -137,7 +140,7 @@ function Dashboard() {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             backgroundColor: 'var(--teal-light)', color: 'var(--teal)',
             padding: '5px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-            border: '1px solid var(--teal)33'
+            border: '1px solid var(--teal)33', whiteSpace: 'nowrap',
           }}>
             <CheckCircle2 size={13} strokeWidth={2.5} /> COMPLIANT
           </span>
@@ -148,7 +151,7 @@ function Dashboard() {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             backgroundColor: 'var(--danger-light)', color: 'var(--danger)',
             padding: '5px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-            border: '1px solid var(--danger)33'
+            border: '1px solid var(--danger)33', whiteSpace: 'nowrap',
           }}>
             <XCircle size={13} strokeWidth={2.5} /> VIOLATION
           </span>
@@ -160,7 +163,7 @@ function Dashboard() {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             backgroundColor: 'var(--amber-light)', color: 'var(--amber)',
             padding: '5px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-            border: '1px solid var(--amber)33'
+            border: '1px solid var(--amber)33', whiteSpace: 'nowrap',
           }}>
             <AlertTriangle size={13} strokeWidth={2.5} /> NEEDS REVIEW
           </span>
@@ -187,7 +190,9 @@ function Dashboard() {
 
   return (
     <div style={{ paddingBottom: '40px' }}>
+
       {/* ── 1. Hero Header Banner ────────────────────────────── */}
+      {/* Mobile: flex-col, Desktop: flex-row (via flexWrap + justifyContent) */}
       <div style={{
         background: 'linear-gradient(135deg, var(--navy) 0%, #1a2c56 60%, #0F6E56 100%)',
         borderRadius: '20px',
@@ -201,14 +206,16 @@ function Dashboard() {
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '24px',
-      }}>
+        gap: '20px',
+      }}
+        className="!px-5 sm:!px-9"
+      >
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(255,255,255,0.12)', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 600, marginBottom: '12px', backdropFilter: 'blur(4px)' }}>
             <Sparkles size={13} color="var(--teal-light)" />
             Legal Metrology AI Engine Active
           </div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#FFFFFF', margin: 0, letterSpacing: '-0.4px' }}>
+          <h1 className="text-2xl sm:text-[28px]" style={{ fontWeight: 800, color: '#FFFFFF', margin: 0, letterSpacing: '-0.4px' }}>
             Compliance Overview
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: '14px', marginTop: '6px', margin: 0, maxWidth: '520px' }}>
@@ -216,9 +223,11 @@ function Dashboard() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        {/* Buttons: full-width on mobile, auto on desktop */}
+        <div className="flex gap-3 flex-wrap w-full sm:w-auto">
           <button
             onClick={() => navigate('/scan')}
+            className="flex-1 sm:flex-none justify-center"
             style={{
               backgroundColor: 'var(--teal)',
               color: '#FFFFFF',
@@ -244,6 +253,7 @@ function Dashboard() {
 
           <button
             onClick={() => navigate('/history')}
+            className="flex-1 sm:flex-none justify-center"
             style={{
               backgroundColor: 'rgba(255,255,255,0.12)',
               color: '#FFFFFF',
@@ -269,7 +279,8 @@ function Dashboard() {
       </div>
 
       {/* ── 2. Stat Cards Grid ──────────────────────────────── */}
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '32px' }}>
+      {/* Mobile: 2-col grid, Desktop: flex row (same as before via flex: '1 1 210px') */}
+      <div className="grid grid-cols-2 sm:flex gap-4 mb-8">
         <StatCard
           count={total}
           label="Total Products Scanned"
@@ -321,14 +332,16 @@ function Dashboard() {
           boxShadow: '0 2px 10px rgba(22,36,71,0.04)',
           marginBottom: '32px',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          {/* Mobile: stack vertically, Desktop: row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <TrendingUp size={18} color="var(--teal)" strokeWidth={2.2} />
               Overall System Compliance Health
             </span>
             <span style={{
-              fontSize: '16px', fontWeight: 800, color: rateColor,
+              fontSize: '14px', fontWeight: 800, color: rateColor,
               backgroundColor: rateBg, padding: '4px 12px', borderRadius: '99px',
+              alignSelf: 'flex-start',
             }}>
               {complianceRate}% Compliance Rate
             </span>
@@ -346,7 +359,7 @@ function Dashboard() {
         </div>
       )}
 
-      {/* ── 4. Recent Inspections Table ───────────────────────── */}
+      {/* ── 4. Recent Inspections ───────────────────────── */}
       <div style={{
         backgroundColor: 'var(--surface)',
         border: '1px solid var(--border)',
@@ -354,17 +367,14 @@ function Dashboard() {
         boxShadow: '0 2px 10px rgba(22,36,71,0.04)',
         overflow: 'hidden',
       }}>
-        {/* Table Controls */}
+        {/* Table Controls — mobile: stacked, desktop: row */}
         <div style={{
           padding: '20px 24px',
           borderBottom: '1px solid var(--border)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
           backgroundColor: '#FCFDFD',
-        }}>
+        }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
           <div>
             <h3 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--navy)', margin: 0 }}>
               Recent Product Scans
@@ -374,9 +384,10 @@ function Dashboard() {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {/* Search + Filter: stacked on mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Search input */}
-            <div style={{ position: 'relative', minWidth: '220px' }}>
+            <div style={{ position: 'relative' }} className="w-full sm:w-auto sm:min-w-[220px]">
               <Search size={16} color="var(--muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
               <input
                 type="text"
@@ -413,6 +424,7 @@ function Dashboard() {
                   key={tab.id}
                   onClick={() => setStatusFilter(tab.id)}
                   style={{
+                    flex: 1,
                     border: 'none',
                     padding: '6px 14px',
                     borderRadius: '6px',
@@ -423,6 +435,7 @@ function Dashboard() {
                     cursor: 'pointer',
                     boxShadow: statusFilter === tab.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                     transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {tab.label}
@@ -432,7 +445,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Table Body */}
+        {/* Empty State */}
         {filteredInspections.length === 0 ? (
           <div style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--muted)' }}>
             <Package size={36} color="var(--border)" style={{ marginBottom: '12px' }} />
@@ -444,115 +457,191 @@ function Dashboard() {
             </p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product</th>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Score</th>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Violations</th>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
-                  <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInspections.slice(0, 8).map((item, idx) => (
-                  <tr
-                    key={item._id}
-                    style={{
-                      borderBottom: idx < filteredInspections.length - 1 ? '1px solid var(--border)' : 'none',
-                      transition: 'backgroundColor 0.15s ease',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                        {item.images?.[0] ? (
-                          <img
-                            src={item.images[0]}
-                            alt={item.productName}
-                            style={{
-                              width: '42px', height: '42px', borderRadius: '8px',
-                              objectFit: 'cover', border: '1px solid var(--border)',
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-                            }}
-                          />
-                        ) : (
-                          <div style={{
-                            width: '42px', height: '42px', borderRadius: '8px',
-                            backgroundColor: 'var(--bg)', border: '1px solid var(--border)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                          }}>
-                            <Package size={20} color="var(--muted)" />
-                          </div>
-                        )}
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
-                            {item.productName || 'Unnamed Product'}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--muted)', fontFamily: 'monospace' }}>
-                            ID: {item._id.substring(item._id.length - 8)}
-                          </div>
+          <>
+            {/* ── Mobile Card List (shown only on small screens) ── */}
+            <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+              {filteredInspections.slice(0, 8).map((item) => (
+                <div key={item._id} style={{ padding: '14px 16px', backgroundColor: 'var(--surface)' }}>
+                  {/* Row 1: image + name + badge */}
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-3">
+                      {item.images?.[0] ? (
+                        <img
+                          src={item.images[0]}
+                          alt={item.productName}
+                          style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)', flexShrink: 0 }}
+                        />
+                      ) : (
+                        <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'var(--bg)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Package size={18} color="var(--muted)" />
+                        </div>
+                      )}
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--ink)', lineHeight: 1.3 }}>
+                          {item.productName || 'Unnamed Product'}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                          #{item._id.substring(item._id.length - 8)}
                         </div>
                       </div>
-                    </td>
-                    <td style={{ padding: '16px 24px' }}>
-                      {getStatusBadge(item.status)}
-                    </td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
-                          {item.complianceScore ?? 0}%
-                        </span>
+                    </div>
+                    {getStatusBadge(item.status)}
+                  </div>
+
+                  {/* Row 2: Score + Violations + Date + Button */}
+                  <div className="flex items-center justify-between mt-2 flex-wrap gap-2">
+                    <div className="flex gap-4">
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Score</div>
+                        <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ink)' }}>{item.complianceScore ?? 0}%</div>
                       </div>
-                    </td>
-                    <td style={{ padding: '16px 24px' }}>
-                      <span style={{
-                        fontSize: '13px', fontWeight: 600,
-                        color: item.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)'
-                      }}>
-                        {item.violations?.length || 0} violation(s)
-                      </span>
-                    </td>
-                    <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
-                      {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
-                    </td>
-                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                      <button
-                        onClick={() => navigate('/history')}
-                        style={{
-                          backgroundColor: 'transparent',
-                          border: '1px solid var(--border)',
-                          padding: '6px 12px',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: 'var(--navy)',
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          transition: 'all 0.15s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'var(--navy)';
-                          e.currentTarget.style.color = '#FFFFFF';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = 'var(--navy)';
-                        }}
-                      >
-                        View Audit <ChevronRight size={14} />
-                      </button>
-                    </td>
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Violations</div>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: item.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)' }}>
+                          {item.violations?.length || 0}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Date</div>
+                        <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
+                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => navigate('/history')}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--border)',
+                        padding: '5px 10px',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: 'var(--navy)',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                      }}
+                    >
+                      View <ChevronRight size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Desktop Table (shown sm and above) — unchanged ── */}
+            <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Product</th>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</th>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Score</th>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Violations</th>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</th>
+                    <th style={{ padding: '12px 24px', fontSize: '12px', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredInspections.slice(0, 8).map((item, idx) => (
+                    <tr
+                      key={item._id}
+                      style={{
+                        borderBottom: idx < filteredInspections.length - 1 ? '1px solid var(--border)' : 'none',
+                        transition: 'backgroundColor 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                          {item.images?.[0] ? (
+                            <img
+                              src={item.images[0]}
+                              alt={item.productName}
+                              style={{
+                                width: '42px', height: '42px', borderRadius: '8px',
+                                objectFit: 'cover', border: '1px solid var(--border)',
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+                              }}
+                            />
+                          ) : (
+                            <div style={{
+                              width: '42px', height: '42px', borderRadius: '8px',
+                              backgroundColor: 'var(--bg)', border: '1px solid var(--border)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}>
+                              <Package size={20} color="var(--muted)" />
+                            </div>
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
+                              {item.productName || 'Unnamed Product'}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                              ID: {item._id.substring(item._id.length - 8)}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        {getStatusBadge(item.status)}
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
+                            {item.complianceScore ?? 0}%
+                          </span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{
+                          fontSize: '13px', fontWeight: 600,
+                          color: item.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)'
+                        }}>
+                          {item.violations?.length || 0} violation(s)
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
+                      </td>
+                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                        <button
+                          onClick={() => navigate('/history')}
+                          style={{
+                            backgroundColor: 'transparent',
+                            border: '1px solid var(--border)',
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            color: 'var(--navy)',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            transition: 'all 0.15s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--navy)';
+                            e.currentTarget.style.color = '#FFFFFF';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = 'var(--navy)';
+                          }}
+                        >
+                          View Audit <ChevronRight size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

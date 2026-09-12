@@ -103,20 +103,24 @@ function History() {
 
   return (
     <div style={{ paddingBottom: '50px' }}>
+
       {/* ── 1. Page Header Banner ────────────────────────────── */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--navy) 0%, #1c2b50 100%)',
-        borderRadius: '20px',
-        padding: '28px 32px',
-        color: '#FFFFFF',
-        marginBottom: '28px',
-        boxShadow: '0 8px 24px rgba(22,36,71,0.15)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '20px',
-      }}>
+      {/* Mobile: compact padding, stat pills wrap; Desktop: same flex-row */}
+      <div
+        className="!px-5 sm:!px-8 !py-6 sm:!py-7"
+        style={{
+          background: 'linear-gradient(135deg, var(--navy) 0%, #1c2b50 100%)',
+          borderRadius: '20px',
+          color: '#FFFFFF',
+          marginBottom: '28px',
+          boxShadow: '0 8px 24px rgba(22,36,71,0.15)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '16px',
+        }}
+      >
         <div>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -126,35 +130,35 @@ function History() {
             <ShieldCheck size={14} color="var(--teal-light)" />
             Official Metrology Audit Logs
           </div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-            Inspection History & Audit Trail
+          <h1 className="text-xl sm:text-[26px]" style={{ fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+            Inspection History &amp; Audit Trail
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '14px', marginTop: '4px', margin: 0 }}>
+          <p className="text-xs sm:text-sm" style={{ color: 'rgba(255,255,255,0.75)', marginTop: '4px', margin: 0 }}>
             Complete historical record of all scanned products, AI evidence extractions, and compliance status.
           </p>
         </div>
 
-        {/* Audit Stats Counter Pills */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Audit Stats Counter Pills — wrap on mobile naturally */}
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 16px', borderRadius: '10px',
-            border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center'
+            backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 14px', borderRadius: '10px',
+            border: '1px solid rgba(255,255,255,0.15)', textAlign: 'center', minWidth: '60px'
           }}>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', fontWeight: 700 }}>Total Logs</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', fontWeight: 700 }}>Total</div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF' }}>{total}</div>
           </div>
           <div style={{
-            backgroundColor: 'rgba(15,110,86,0.3)', padding: '8px 16px', borderRadius: '10px',
-            border: '1px solid var(--teal)', textAlign: 'center'
+            backgroundColor: 'rgba(15,110,86,0.3)', padding: '8px 14px', borderRadius: '10px',
+            border: '1px solid var(--teal)', textAlign: 'center', minWidth: '60px'
           }}>
-            <div style={{ fontSize: '11px', color: 'var(--teal-light)', textTransform: 'uppercase', fontWeight: 700 }}>Compliant</div>
+            <div style={{ fontSize: '11px', color: 'var(--teal-light)', textTransform: 'uppercase', fontWeight: 700 }}>Pass</div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF' }}>{passed}</div>
           </div>
           <div style={{
-            backgroundColor: 'rgba(163,45,45,0.3)', padding: '8px 16px', borderRadius: '10px',
-            border: '1px solid var(--danger)', textAlign: 'center'
+            backgroundColor: 'rgba(163,45,45,0.3)', padding: '8px 14px', borderRadius: '10px',
+            border: '1px solid var(--danger)', textAlign: 'center', minWidth: '60px'
           }}>
-            <div style={{ fontSize: '11px', color: '#FCA5A5', textTransform: 'uppercase', fontWeight: 700 }}>Violations</div>
+            <div style={{ fontSize: '11px', color: '#FCA5A5', textTransform: 'uppercase', fontWeight: 700 }}>Fail</div>
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF' }}>{failed}</div>
           </div>
         </div>
@@ -169,22 +173,17 @@ function History() {
         overflow: 'hidden',
         marginBottom: selected ? '28px' : '0',
       }}>
-        <div style={{
-          padding: '18px 24px',
-          borderBottom: '1px solid var(--border)',
-          backgroundColor: '#FCFDFD',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}>
+        {/* Controls bar — mobile: stacked, desktop: row */}
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5"
+          style={{ borderBottom: '1px solid var(--border)', backgroundColor: '#FCFDFD' }}
+        >
           {/* Search bar */}
-          <div style={{ position: 'relative', flex: '1 1 280px', maxWidth: '400px' }}>
+          <div style={{ position: 'relative' }} className="w-full sm:max-w-sm">
             <Search size={16} color="var(--muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search product name, officer, or ID..."
+              placeholder="Search product, officer, or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
@@ -218,8 +217,9 @@ function History() {
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id)}
                 style={{
+                  flex: 1,
                   border: 'none',
-                  padding: '6px 14px',
+                  padding: '6px 10px',
                   borderRadius: '7px',
                   fontSize: '12px',
                   fontWeight: statusFilter === tab.id ? 700 : 500,
@@ -228,6 +228,7 @@ function History() {
                   cursor: 'pointer',
                   boxShadow: statusFilter === tab.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                   transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {tab.label}
@@ -236,7 +237,7 @@ function History() {
           </div>
         </div>
 
-        {/* Table View */}
+        {/* Empty State */}
         {filteredInspections.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center', color: 'var(--muted)' }}>
             <Package size={42} color="var(--border)" style={{ marginBottom: '12px' }} />
@@ -248,168 +249,282 @@ function History() {
             </p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ backgroundColor: 'var(--navy)' }}>
-                  {['Product Item', 'Inspector Officer', 'Score', 'Status', 'Audit Date', 'Action'].map((h, i) => (
-                    <th
-                      key={h}
-                      style={{
-                        padding: '14px 20px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: 'rgba(255,255,255,0.85)',
-                        letterSpacing: '0.5px',
-                        textTransform: 'uppercase',
-                        textAlign: i === 5 ? 'right' : 'left',
-                      }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInspections.map((insp, idx) => {
-                  const sm = statusMeta(insp.status);
-                  const isOpen = selected?._id === insp._id;
-                  const StatusIcon = sm.Icon;
+          <>
+            {/* ── Mobile Card List (< sm) ── */}
+            <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+              {filteredInspections.map((insp, idx) => {
+                const sm = statusMeta(insp.status);
+                const isOpen = selected?._id === insp._id;
+                const StatusIcon = sm.Icon;
 
-                  return (
-                    <tr
-                      key={insp._id}
-                      style={{
-                        borderBottom: idx < filteredInspections.length - 1 ? '1px solid var(--border)' : 'none',
-                        backgroundColor: isOpen
-                          ? 'var(--teal-light)'
-                          : idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
-                        transition: 'background 0.15s ease',
-                      }}
-                    >
-                      {/* Product details & thumbnail */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          {insp.images?.[0] ? (
-                            <img
-                              src={insp.images[0]}
-                              alt={insp.productName}
-                              style={{
-                                width: '40px', height: '40px', borderRadius: '8px',
-                                objectFit: 'cover', border: '1px solid var(--border)',
-                                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-                              }}
-                            />
-                          ) : (
-                            <div style={{
-                              width: '40px', height: '40px', borderRadius: '8px',
-                              backgroundColor: 'var(--bg)', border: '1px solid var(--border)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center'
-                            }}>
-                              <Package size={18} color="var(--muted)" />
-                            </div>
-                          )}
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
-                              {insp.productName || 'Unnamed Product'}
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>
-                              REF: #{insp._id.substring(insp._id.length - 8).toUpperCase()}
-                            </div>
-                          </div>
+                return (
+                  <div
+                    key={insp._id}
+                    style={{
+                      padding: '14px 16px',
+                      backgroundColor: isOpen ? 'var(--teal-light)' : idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    {/* Row 1: thumbnail + name + ref */}
+                    <div className="flex items-start gap-3 mb-3">
+                      {insp.images?.[0] ? (
+                        <img
+                          src={insp.images[0]}
+                          alt={insp.productName}
+                          style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)', flexShrink: 0 }}
+                        />
+                      ) : (
+                        <div style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--bg)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Package size={18} color="var(--muted)" />
                         </div>
-                      </td>
-
-                      {/* Inspector */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--ink)', fontWeight: 500 }}>
-                          <User size={14} color="var(--muted)" />
-                          {insp.officer?.name || 'Authorized Inspector'}
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)', lineHeight: 1.3 }}>
+                          {insp.productName || 'Unnamed Product'}
                         </div>
-                      </td>
-
-                      {/* Score */}
-                      <td style={{ padding: '14px 20px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span style={{
-                            fontSize: '14px', fontWeight: 800, color: sm.text,
-                            backgroundColor: sm.bg, padding: '3px 8px', borderRadius: '6px',
-                            border: `1px solid ${sm.border}44`
-                          }}>
-                            {insp.complianceScore ?? 0}%
-                          </span>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                          REF: #{insp._id.substring(insp._id.length - 8).toUpperCase()}
                         </div>
-                      </td>
+                      </div>
+                      {/* Status badge top-right */}
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        backgroundColor: sm.bg, color: sm.text,
+                        padding: '3px 9px', borderRadius: '99px', fontSize: '10px', fontWeight: 700,
+                        border: `1px solid ${sm.border}44`, letterSpacing: '0.3px',
+                        flexShrink: 0, whiteSpace: 'nowrap',
+                      }}>
+                        <StatusIcon size={11} strokeWidth={2.5} />
+                        {sm.label}
+                      </span>
+                    </div>
 
-                      {/* Status */}
-                      <td style={{ padding: '14px 20px' }}>
+                    {/* Row 2: Score + Inspector + Date */}
+                    <div className="flex items-center gap-4 flex-wrap mb-3">
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Score</div>
                         <span style={{
-                          display: 'inline-flex', alignItems: 'center', gap: '5px',
-                          backgroundColor: sm.bg, color: sm.text,
-                          padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: 700,
-                          border: `1px solid ${sm.border}44`, letterSpacing: '0.4px',
+                          fontSize: '13px', fontWeight: 800, color: sm.text,
+                          backgroundColor: sm.bg, padding: '2px 7px', borderRadius: '5px',
+                          border: `1px solid ${sm.border}44`
                         }}>
-                          <StatusIcon size={12} strokeWidth={2.5} />
-                          {sm.label}
+                          {insp.complianceScore ?? 0}%
                         </span>
-                      </td>
-
-                      {/* Date */}
-                      <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--muted)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Calendar size={13} color="var(--muted)" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Inspector</div>
+                        <div style={{ fontSize: '12px', color: 'var(--ink)', fontWeight: 500 }}>
+                          {insp.officer?.name || 'Authorized'}
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Date</div>
+                        <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
                           {insp.createdAt
                             ? new Date(insp.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
                             : 'N/A'}
                         </div>
-                      </td>
+                      </div>
+                    </div>
 
-                      {/* Action */}
-                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                        <button
-                          id={`view-btn-${insp._id}`}
-                          onClick={() => setSelected(isOpen ? null : insp)}
-                          style={{
-                            backgroundColor: isOpen ? 'var(--navy)' : 'var(--surface)',
-                            color: isOpen ? '#FFFFFF' : 'var(--navy)',
-                            border: '1px solid var(--navy)',
-                            borderRadius: '7px',
-                            padding: '6px 14px',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            transition: 'all 0.18s ease',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '5px',
-                            boxShadow: isOpen ? '0 2px 8px rgba(22,36,71,0.2)' : 'none',
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isOpen) {
-                              e.currentTarget.style.backgroundColor = 'var(--navy)';
-                              e.currentTarget.style.color = '#FFFFFF';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isOpen) {
-                              e.currentTarget.style.backgroundColor = 'var(--surface)';
-                              e.currentTarget.style.color = 'var(--navy)';
-                            }
-                          }}
-                        >
-                          {isOpen ? (
-                            <><ChevronUp size={14} /> Hide Audit Report</>
-                          ) : (
-                            <><ChevronDown size={14} /> View Audit Report</>
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    {/* Row 3: View button */}
+                    <button
+                      onClick={() => setSelected(isOpen ? null : insp)}
+                      style={{
+                        width: '100%',
+                        backgroundColor: isOpen ? 'var(--navy)' : 'var(--surface)',
+                        color: isOpen ? '#FFFFFF' : 'var(--navy)',
+                        border: '1px solid var(--navy)',
+                        borderRadius: '8px',
+                        padding: '8px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {isOpen ? (
+                        <><ChevronUp size={14} /> Hide Audit Report</>
+                      ) : (
+                        <><ChevronDown size={14} /> View Audit Report</>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Desktop Table (≥ sm) — unchanged ── */}
+            <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--navy)' }}>
+                    {['Product Item', 'Inspector Officer', 'Score', 'Status', 'Audit Date', 'Action'].map((h, i) => (
+                      <th
+                        key={h}
+                        style={{
+                          padding: '14px 20px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          color: 'rgba(255,255,255,0.85)',
+                          letterSpacing: '0.5px',
+                          textTransform: 'uppercase',
+                          textAlign: i === 5 ? 'right' : 'left',
+                        }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredInspections.map((insp, idx) => {
+                    const sm = statusMeta(insp.status);
+                    const isOpen = selected?._id === insp._id;
+                    const StatusIcon = sm.Icon;
+
+                    return (
+                      <tr
+                        key={insp._id}
+                        style={{
+                          borderBottom: idx < filteredInspections.length - 1 ? '1px solid var(--border)' : 'none',
+                          backgroundColor: isOpen
+                            ? 'var(--teal-light)'
+                            : idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
+                          transition: 'background 0.15s ease',
+                        }}
+                      >
+                        {/* Product details & thumbnail */}
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            {insp.images?.[0] ? (
+                              <img
+                                src={insp.images[0]}
+                                alt={insp.productName}
+                                style={{
+                                  width: '40px', height: '40px', borderRadius: '8px',
+                                  objectFit: 'cover', border: '1px solid var(--border)',
+                                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+                                }}
+                              />
+                            ) : (
+                              <div style={{
+                                width: '40px', height: '40px', borderRadius: '8px',
+                                backgroundColor: 'var(--bg)', border: '1px solid var(--border)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                              }}>
+                                <Package size={18} color="var(--muted)" />
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
+                                {insp.productName || 'Unnamed Product'}
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                                REF: #{insp._id.substring(insp._id.length - 8).toUpperCase()}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Inspector */}
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--ink)', fontWeight: 500 }}>
+                            <User size={14} color="var(--muted)" />
+                            {insp.officer?.name || 'Authorized Inspector'}
+                          </div>
+                        </td>
+
+                        {/* Score */}
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{
+                              fontSize: '14px', fontWeight: 800, color: sm.text,
+                              backgroundColor: sm.bg, padding: '3px 8px', borderRadius: '6px',
+                              border: `1px solid ${sm.border}44`
+                            }}>
+                              {insp.complianceScore ?? 0}%
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Status */}
+                        <td style={{ padding: '14px 20px' }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '5px',
+                            backgroundColor: sm.bg, color: sm.text,
+                            padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: 700,
+                            border: `1px solid ${sm.border}44`, letterSpacing: '0.4px',
+                            whiteSpace: 'nowrap',
+                          }}>
+                            <StatusIcon size={12} strokeWidth={2.5} />
+                            {sm.label}
+                          </span>
+                        </td>
+
+                        {/* Date */}
+                        <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--muted)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Calendar size={13} color="var(--muted)" />
+                            {insp.createdAt
+                              ? new Date(insp.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                              : 'N/A'}
+                          </div>
+                        </td>
+
+                        {/* Action */}
+                        <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                          <button
+                            id={`view-btn-${insp._id}`}
+                            onClick={() => setSelected(isOpen ? null : insp)}
+                            style={{
+                              backgroundColor: isOpen ? 'var(--navy)' : 'var(--surface)',
+                              color: isOpen ? '#FFFFFF' : 'var(--navy)',
+                              border: '1px solid var(--navy)',
+                              borderRadius: '7px',
+                              padding: '6px 14px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.18s ease',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              boxShadow: isOpen ? '0 2px 8px rgba(22,36,71,0.2)' : 'none',
+                              whiteSpace: 'nowrap',
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isOpen) {
+                                e.currentTarget.style.backgroundColor = 'var(--navy)';
+                                e.currentTarget.style.color = '#FFFFFF';
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isOpen) {
+                                e.currentTarget.style.backgroundColor = 'var(--surface)';
+                                e.currentTarget.style.color = 'var(--navy)';
+                              }
+                            }}
+                          >
+                            {isOpen ? (
+                              <><ChevronUp size={14} /> Hide Audit Report</>
+                            ) : (
+                              <><ChevronDown size={14} /> View Audit Report</>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -419,45 +534,48 @@ function History() {
         const StatusIcon = sm.Icon;
 
         return (
-          <div style={{
-            backgroundColor: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderTop: `4px solid ${sm.border}`,
-            borderRadius: '16px',
-            padding: '30px',
-            boxShadow: '0 8px 30px rgba(22,36,71,0.1)',
-            animation: 'fadeIn 0.25s ease-in-out',
-          }}>
+          <div
+            className="p-5 sm:p-8"
+            style={{
+              backgroundColor: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderTop: `4px solid ${sm.border}`,
+              borderRadius: '16px',
+              boxShadow: '0 8px 30px rgba(22,36,71,0.1)',
+              animation: 'fadeIn 0.25s ease-in-out',
+            }}
+          >
             <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
-            {/* Header of selected audit */}
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              flexWrap: 'wrap', gap: '16px', paddingBottom: '20px',
-              borderBottom: '1px solid var(--border)', marginBottom: '24px'
-            }}>
+            {/* Header of selected audit — mobile: stacked, desktop: row */}
+            <div
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 mb-6"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
+                {/* Product name + status badge — wrap on mobile */}
+                <div className="flex flex-wrap items-center gap-3 mb-1">
+                  <h2 className="text-xl sm:text-[22px]" style={{ fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
                     {selected.productName || 'Inspection Detail'}
                   </h2>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: '5px',
                     backgroundColor: sm.bg, color: sm.text,
                     padding: '4px 14px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-                    border: `1px solid ${sm.border}44`
+                    border: `1px solid ${sm.border}44`, whiteSpace: 'nowrap',
                   }}>
                     <StatusIcon size={14} strokeWidth={2.5} />
                     {sm.label}
                   </span>
                 </div>
-                <p style={{ color: 'var(--muted)', fontSize: '13px', marginTop: '4px', margin: 0 }}>
-                  Audit Reference ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace' }}>{selected._id}</strong>
-                  &nbsp;·&nbsp; Inspected on {new Date(selected.createdAt).toLocaleString('en-IN')}
+                <p style={{ color: 'var(--muted)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
+                  Audit ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace', wordBreak: 'break-all' }}>{selected._id}</strong>
+                  {' · '} Inspected on {new Date(selected.createdAt).toLocaleString('en-IN')}
                 </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {/* Action buttons — full-width on mobile */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   id={`download-report-btn-${selected._id}`}
                   onClick={() => {
@@ -467,11 +585,12 @@ function History() {
                       '_blank'
                     );
                   }}
+                  className="w-full sm:w-auto justify-center"
                   style={{
                     backgroundColor: 'var(--teal)',
                     color: '#FFFFFF',
                     border: 'none',
-                    padding: '8px 18px',
+                    padding: '9px 18px',
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: 700,
@@ -491,15 +610,19 @@ function History() {
 
                 <button
                   onClick={() => setSelected(null)}
+                  className="w-full sm:w-auto justify-center"
                   style={{
                     backgroundColor: 'var(--bg)',
                     border: '1px solid var(--border)',
-                    padding: '8px 16px',
+                    padding: '9px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: 600,
                     color: 'var(--ink)',
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   Close Report
