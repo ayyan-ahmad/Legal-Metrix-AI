@@ -19,6 +19,14 @@ const inspectionSchema = new mongoose.Schema(
       default: 'review',
     },
     officer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    seizureMemo: {
+      samplesSeized: { type: Number, default: null },
+      samplesReleased: { type: Number, default: null },
+      disposalNote: { type: String, default: null },
+      reasonsToBelieve: { type: String, default: null },
+      generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      generatedAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
 );

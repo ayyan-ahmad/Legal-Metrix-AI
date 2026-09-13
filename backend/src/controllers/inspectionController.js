@@ -108,3 +108,51 @@ exports.getInspectionById = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.generateSeizureMemo = async (req, res) => {
+  try {
+    const { samplesSeized, samplesReleased, disposalNote, reasonsToBelieve } = req.body;
+
+    // Basic validation - officer ne zaroori fields bhari ya nahi
+    if (samplesSeized === undefined || samplesReleased === undefined || !disposalNote) {
+      return res.status(400).json({
+        message: 'samplesSeized, samplesReleased, and disposalNote are required',
+      });
+    }
+
+    const inspection = await Inspection.findById(req.params.id);
+    if (!inspection) {
+      return res.status(404).json({ message: 'Inspection not found' });
+    }
+
+    // Sirf "fail" status wali inspections ke liye seizure memo banta hai
+    if (inspection.status !== 'fail') {
+      return res.status(400).json({
+        message: 'Seizure memo can only be generated for non-compliant (fail) inspections',
+      });
+    }
+
+    // Access control - sirf apni khud ki inspection pe memo bana sake (admin sabki bana sakta hai)
+    if (req.user.role !== 'admin' && inspection.officer.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    inspection.seizureMemo = {
+      samplesSeized,
+      samplesReleased,
+      disposalNote,
+      reasonsToBelieve: reasonsToBelieve || null,
+      generatedBy: req.user.id,
+      generatedAt: new Date(),
+    };
+
+    await inspection.save();
+
+    res.json({
+      message: 'Seizure memo generated successfully',
+      inspection,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

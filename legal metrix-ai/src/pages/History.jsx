@@ -55,6 +55,38 @@ function History() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const [showSeizureForm, setShowSeizureForm] = useState(false);
+  const [seizureForm, setSeizureForm] = useState({
+    samplesSeized: '',
+    samplesReleased: '',
+    disposalNote: '',
+    reasonsToBelieve: '',
+  });
+  const [seizureSubmitting, setSeizureSubmitting] = useState(false);
+
+  const handleSeizureSubmit = async (e) => {
+    e.preventDefault();
+    setSeizureSubmitting(true);
+    try {
+      const response = await API.post(`/inspections/${selected._id}/seizure-memo`, {
+        samplesSeized: Number(seizureForm.samplesSeized),
+        samplesReleased: Number(seizureForm.samplesReleased),
+        disposalNote: seizureForm.disposalNote,
+        reasonsToBelieve: seizureForm.reasonsToBelieve,
+      });
+      const updatedInspection = response.data.inspection;
+      setSelected(updatedInspection);
+      setInspections((prev) =>
+        prev.map((item) => (item._id === updatedInspection._id ? updatedInspection : item))
+      );
+      setShowSeizureForm(false);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to generate seizure memo');
+    } finally {
+      setSeizureSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     fetchInspections();
   }, []);
@@ -629,6 +661,192 @@ function History() {
                 </button>
               </div>
             </div>
+
+            {/* Seizure Memo Actions & Display */}
+            {selected.status === 'fail' && !selected.seizureMemo?.samplesSeized && (
+              <div style={{ marginBottom: '20px' }}>
+                <button
+                  id="generate-seizure-memo-btn"
+                  onClick={() => setShowSeizureForm(true)}
+                  style={{
+                    backgroundColor: 'var(--danger, #dc2626)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    padding: '9px 18px',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
+                    transition: 'all 0.18s ease',
+                  }}
+                >
+                  <AlertTriangle size={15} />
+                  Generate Seizure Memo
+                </button>
+              </div>
+            )}
+
+            {selected.seizureMemo?.samplesSeized != null && (
+              <div
+                style={{
+                  marginBottom: '24px',
+                  padding: '16px 20px',
+                  border: '1px solid var(--danger, #dc2626)44',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--danger-light, #fef2f2)',
+                }}
+              >
+                <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800, color: 'var(--danger, #dc2626)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldCheck size={16} /> Official Seizure Memo
+                </h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '13px', color: 'var(--ink)' }}>
+                  <p style={{ margin: 0 }}><strong>Samples Seized:</strong> {selected.seizureMemo.samplesSeized}</p>
+                  <p style={{ margin: 0 }}><strong>Samples Released:</strong> {selected.seizureMemo.samplesReleased}</p>
+                </div>
+                <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--ink)' }}>
+                  <strong>Disposal Note:</strong> {selected.seizureMemo.disposalNote}
+                </p>
+                {selected.seizureMemo.reasonsToBelieve && (
+                  <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--muted)' }}>
+                    <strong>Reasons to Believe:</strong> {selected.seizureMemo.reasonsToBelieve}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {showSeizureForm && (
+              <form
+                onSubmit={handleSeizureSubmit}
+                style={{
+                  marginBottom: '24px',
+                  padding: '20px',
+                  border: '1px solid var(--border, #cbd5e1)',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--bg, #f8fafc)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
+                }}
+              >
+                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--navy)' }}>
+                  Generate Seizure Memo
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Seized</label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={seizureForm.samplesSeized}
+                      onChange={(e) => setSeizureForm({ ...seizureForm, samplesSeized: e.target.value })}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        fontSize: '13px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Released</label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={seizureForm.samplesReleased}
+                      onChange={(e) => setSeizureForm({ ...seizureForm, samplesReleased: e.target.value })}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border)',
+                        fontSize: '13px',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Disposal Note</label>
+                  <textarea
+                    required
+                    value={seizureForm.disposalNote}
+                    onChange={(e) => setSeizureForm({ ...seizureForm, disposalNote: e.target.value })}
+                    placeholder="e.g. Samples to be disposed as per applicable procedure after investigation"
+                    rows={3}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Reasons to Believe (recommended)</label>
+                  <textarea
+                    value={seizureForm.reasonsToBelieve}
+                    onChange={(e) => setSeizureForm({ ...seizureForm, reasonsToBelieve: e.target.value })}
+                    placeholder="e.g. Consumer Care declaration missing, MRP mismatch observed on physical inspection"
+                    rows={3}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      fontSize: '13px',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                  <button
+                    type="submit"
+                    disabled={seizureSubmitting}
+                    style={{
+                      backgroundColor: 'var(--navy)',
+                      color: '#ffffff',
+                      padding: '8px 18px',
+                      borderRadius: '8px',
+                      border: 'none',
+                      fontWeight: 700,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {seizureSubmitting ? 'Saving...' : 'Save Seizure Memo'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowSeizureForm(false)}
+                    style={{
+                      backgroundColor: 'var(--surface)',
+                      color: 'var(--ink)',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      fontWeight: 600,
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
 
             {/* Evidence Breakdown */}
             <EvidencePanel

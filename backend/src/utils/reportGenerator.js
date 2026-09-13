@@ -75,6 +75,19 @@ function generateInspectionPDF(inspection, res) {
   }
   doc.moveDown(1);
 
+  // ---------- SEIZURE MEMO ----------
+  if (inspection.seizureMemo?.samplesSeized != null) {
+    doc.fontSize(14).fillColor('#162447').text('Seizure Memo');
+    doc.fontSize(11).fillColor('#1F2A44');
+    doc.text(`Samples Seized: ${inspection.seizureMemo.samplesSeized}`);
+    doc.text(`Samples Released: ${inspection.seizureMemo.samplesReleased}`);
+    doc.text(`Disposal Note: ${inspection.seizureMemo.disposalNote}`);
+    if (inspection.seizureMemo.reasonsToBelieve) {
+      doc.text(`Reasons to Believe: ${inspection.seizureMemo.reasonsToBelieve}`);
+    }
+    doc.moveDown(1);
+  }
+
   // ---------- FOOTER ----------
   doc
     .fontSize(9)
