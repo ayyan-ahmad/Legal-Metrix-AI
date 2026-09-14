@@ -16,6 +16,9 @@ import {
   Sparkles,
   Download,
   Filter,
+  X,
+  Eye,
+  FileText,
 } from 'lucide-react';
 
 const statusMeta = (status) => ({
@@ -63,6 +66,24 @@ function History() {
     reasonsToBelieve: '',
   });
   const [seizureSubmitting, setSeizureSubmitting] = useState(false);
+
+  // Close drawer on ESC key and prevent body scroll when drawer is open
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelected(null);
+        setShowSeizureForm(false);
+      }
+    };
+    if (selected) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [selected]);
 
   const handleSeizureSubmit = async (e) => {
     e.preventDefault();
@@ -381,9 +402,9 @@ function History() {
                       }}
                     >
                       {isOpen ? (
-                        <><ChevronUp size={14} /> Hide Audit Report</>
+                        <><Eye size={14} /> Viewing Report</>
                       ) : (
-                        <><ChevronDown size={14} /> View Audit Report</>
+                        <><Eye size={14} /> View Audit Report</>
                       )}
                     </button>
                   </div>
@@ -544,9 +565,9 @@ function History() {
                             }}
                           >
                             {isOpen ? (
-                              <><ChevronUp size={14} /> Hide Audit Report</>
+                              <><Eye size={14} /> Viewing Report</>
                             ) : (
-                              <><ChevronDown size={14} /> View Audit Report</>
+                              <><Eye size={14} /> View Audit Report</>
                             )}
                           </button>
                         </td>
@@ -560,300 +581,364 @@ function History() {
         )}
       </div>
 
-      {/* ── 3. Detailed Audit Report Panel ───────────────────── */}
+      {/* ── 3. Modern Slide-Over Audit Report Drawer Overlay ───────────────────── */}
       {selected && (() => {
         const sm = statusMeta(selected.status);
         const StatusIcon = sm.Icon;
 
         return (
           <div
-            className="p-5 sm:p-8"
             style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderTop: `4px solid ${sm.border}`,
-              borderRadius: '16px',
-              boxShadow: '0 8px 30px rgba(22,36,71,0.1)',
-              animation: 'fadeIn 0.25s ease-in-out',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 9999,
+              display: 'flex',
+              justifyContent: 'flex-end',
+              backgroundColor: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              animation: 'drawerFadeIn 0.22s ease-out',
+            }}
+            onClick={() => {
+              setSelected(null);
+              setShowSeizureForm(false);
             }}
           >
-            <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-
-            {/* Header of selected audit — mobile: stacked, desktop: row */}
+            <style>{`
+              @keyframes drawerFadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              @keyframes drawerSlideLeft {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+              }
+            `}</style>
+            
             <div
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 mb-6"
-              style={{ borderBottom: '1px solid var(--border)' }}
+              style={{
+                width: '100%',
+                maxWidth: '820px',
+                height: '100%',
+                backgroundColor: 'var(--surface, #ffffff)',
+                boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                animation: 'drawerSlideLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <div>
-                {/* Product name + status badge — wrap on mobile */}
-                <div className="flex flex-wrap items-center gap-3 mb-1">
-                  <h2 className="text-xl sm:text-[22px]" style={{ fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
-                    {selected.productName || 'Inspection Detail'}
-                  </h2>
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '5px',
-                    backgroundColor: sm.bg, color: sm.text,
-                    padding: '4px 14px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-                    border: `1px solid ${sm.border}44`, whiteSpace: 'nowrap',
-                  }}>
-                    <StatusIcon size={14} strokeWidth={2.5} />
-                    {sm.label}
-                  </span>
-                </div>
-                <p style={{ color: 'var(--muted)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
-                  Audit ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace', wordBreak: 'break-all' }}>{selected._id}</strong>
-                  {' · '} Inspected on {new Date(selected.createdAt).toLocaleString('en-IN')}
-                </p>
-              </div>
-
-              {/* Action buttons — full-width on mobile */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <button
-                  id={`download-report-btn-${selected._id}`}
-                  onClick={() => {
-                    const token = localStorage.getItem('token');
-                    window.open(
-                      `${API_BASE_URL}/reports/generate/${selected._id}?token=${token}`,
-                      '_blank'
-                    );
-                  }}
-                  className="w-full sm:w-auto justify-center"
-                  style={{
-                    backgroundColor: 'var(--teal)',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    padding: '9px 18px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 2px 8px rgba(15,110,86,0.25)',
-                    transition: 'all 0.18s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--navy)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--teal)')}
-                >
-                  <Download size={15} />
-                  Download Report
-                </button>
-
-                <button
-                  onClick={() => setSelected(null)}
-                  className="w-full sm:w-auto justify-center"
-                  style={{
-                    backgroundColor: 'var(--bg)',
-                    border: '1px solid var(--border)',
-                    padding: '9px 16px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  Close Report
-                </button>
-              </div>
-            </div>
-
-            {/* Seizure Memo Actions & Display */}
-            {selected.status === 'fail' && !selected.seizureMemo?.samplesSeized && (
-              <div style={{ marginBottom: '20px' }}>
-                <button
-                  id="generate-seizure-memo-btn"
-                  onClick={() => setShowSeizureForm(true)}
-                  style={{
-                    backgroundColor: 'var(--danger, #dc2626)',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    padding: '9px 18px',
-                    borderRadius: '8px',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
-                    transition: 'all 0.18s ease',
-                  }}
-                >
-                  <AlertTriangle size={15} />
-                  Generate Seizure Memo
-                </button>
-              </div>
-            )}
-
-            {selected.seizureMemo?.samplesSeized != null && (
+              {/* Drawer Sticky Top Header */}
               <div
                 style={{
-                  marginBottom: '24px',
-                  padding: '16px 20px',
-                  border: '1px solid var(--danger, #dc2626)44',
-                  borderRadius: '12px',
-                  backgroundColor: 'var(--danger-light, #fef2f2)',
-                }}
-              >
-                <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800, color: 'var(--danger, #dc2626)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <ShieldCheck size={16} /> Official Seizure Memo
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '13px', color: 'var(--ink)' }}>
-                  <p style={{ margin: 0 }}><strong>Samples Seized:</strong> {selected.seizureMemo.samplesSeized}</p>
-                  <p style={{ margin: 0 }}><strong>Samples Released:</strong> {selected.seizureMemo.samplesReleased}</p>
-                </div>
-                <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--ink)' }}>
-                  <strong>Disposal Note:</strong> {selected.seizureMemo.disposalNote}
-                </p>
-                {selected.seizureMemo.reasonsToBelieve && (
-                  <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--muted)' }}>
-                    <strong>Reasons to Believe:</strong> {selected.seizureMemo.reasonsToBelieve}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {showSeizureForm && (
-              <form
-                onSubmit={handleSeizureSubmit}
-                style={{
-                  marginBottom: '24px',
-                  padding: '20px',
-                  border: '1px solid var(--border, #cbd5e1)',
-                  borderRadius: '12px',
-                  backgroundColor: 'var(--bg, #f8fafc)',
+                  padding: '20px 24px',
+                  backgroundColor: 'var(--surface, #ffffff)',
+                  borderBottom: '1px solid var(--border)',
+                  borderTop: `4px solid ${sm.border}`,
                   display: 'flex',
-                  flexDirection: 'column',
-                  gap: '14px',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '16px',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                  zIndex: 10,
                 }}
               >
-                <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--navy)' }}>
-                  Generate Seizure Memo
-                </h4>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Seized</label>
-                    <input
-                      type="number"
-                      min="0"
-                      required
-                      value={seizureForm.samplesSeized}
-                      onChange={(e) => setSeizureForm({ ...seizureForm, samplesSeized: e.target.value })}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        fontSize: '13px',
-                        outline: 'none',
-                      }}
-                    />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                    <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--navy)', margin: 0 }}>
+                      {selected.productName || 'Inspection Detail'}
+                    </h2>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '5px',
+                      backgroundColor: sm.bg, color: sm.text,
+                      padding: '3px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: 700,
+                      border: `1px solid ${sm.border}44`, whiteSpace: 'nowrap',
+                    }}>
+                      <StatusIcon size={13} strokeWidth={2.5} />
+                      {sm.label}
+                    </span>
                   </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Released</label>
-                    <input
-                      type="number"
-                      min="0"
-                      required
-                      value={seizureForm.samplesReleased}
-                      onChange={(e) => setSeizureForm({ ...seizureForm, samplesReleased: e.target.value })}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        fontSize: '13px',
-                        outline: 'none',
-                      }}
-                    />
+                  <div style={{ color: 'var(--muted)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span>Audit ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace' }}>#{selected._id.substring(selected._id.length - 8).toUpperCase()}</strong></span>
+                    <span>•</span>
+                    <span>Inspected: {new Date(selected.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Disposal Note</label>
-                  <textarea
-                    required
-                    value={seizureForm.disposalNote}
-                    onChange={(e) => setSeizureForm({ ...seizureForm, disposalNote: e.target.value })}
-                    placeholder="e.g. Samples to be disposed as per applicable procedure after investigation"
-                    rows={3}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      fontSize: '13px',
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Reasons to Believe (recommended)</label>
-                  <textarea
-                    value={seizureForm.reasonsToBelieve}
-                    onChange={(e) => setSeizureForm({ ...seizureForm, reasonsToBelieve: e.target.value })}
-                    placeholder="e.g. Consumer Care declaration missing, MRP mismatch observed on physical inspection"
-                    rows={3}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      fontSize: '13px',
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                   <button
-                    type="submit"
-                    disabled={seizureSubmitting}
+                    id={`download-report-btn-${selected._id}`}
+                    onClick={() => {
+                      const token = localStorage.getItem('token');
+                      window.open(
+                        `${API_BASE_URL}/reports/generate/${selected._id}?token=${token}`,
+                        '_blank'
+                      );
+                    }}
                     style={{
-                      backgroundColor: 'var(--navy)',
-                      color: '#ffffff',
-                      padding: '8px 18px',
-                      borderRadius: '8px',
+                      backgroundColor: 'var(--teal)',
+                      color: '#FFFFFF',
                       border: 'none',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {seizureSubmitting ? 'Saving...' : 'Save Seizure Memo'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowSeizureForm(false)}
-                    style={{
-                      backgroundColor: 'var(--surface)',
-                      color: 'var(--ink)',
                       padding: '8px 16px',
                       borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      fontWeight: 600,
-                      fontSize: '13px',
+                      fontSize: '12px',
+                      fontWeight: 700,
                       cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(15,110,86,0.25)',
+                      transition: 'all 0.18s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--navy)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--teal)')}
+                  >
+                    <Download size={14} />
+                    Download PDF
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelected(null);
+                      setShowSeizureForm(false);
+                    }}
+                    title="Close (Esc)"
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--bg)',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--ink)',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--danger-light)';
+                      e.currentTarget.style.color = 'var(--danger)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--bg)';
+                      e.currentTarget.style.color = 'var(--ink)';
                     }}
                   >
-                    Cancel
+                    <X size={18} />
                   </button>
                 </div>
-              </form>
-            )}
+              </div>
 
-            {/* Evidence Breakdown */}
-            <EvidencePanel
-              extractedData={selected.extractedData}
-              violations={selected.violations}
-              imageUrl={selected.images?.[0]}
-            />
+              {/* Scrollable Drawer Body Content */}
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  padding: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '20px',
+                }}
+              >
+                {/* Seizure Memo Actions & Display */}
+                {selected.status === 'fail' && !selected.seizureMemo?.samplesSeized && (
+                  <div>
+                    <button
+                      id="generate-seizure-memo-btn"
+                      onClick={() => setShowSeizureForm(true)}
+                      style={{
+                        backgroundColor: 'var(--danger, #dc2626)',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        padding: '9px 18px',
+                        borderRadius: '8px',
+                        fontWeight: 700,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 8px rgba(220,38,38,0.25)',
+                        transition: 'all 0.18s ease',
+                      }}
+                    >
+                      <AlertTriangle size={15} />
+                      Generate Seizure Memo
+                    </button>
+                  </div>
+                )}
+
+                {selected.seizureMemo?.samplesSeized != null && (
+                  <div
+                    style={{
+                      padding: '16px 20px',
+                      border: '1px solid var(--danger, #dc2626)44',
+                      borderRadius: '12px',
+                      backgroundColor: 'var(--danger-light, #fef2f2)',
+                    }}
+                  >
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '15px', fontWeight: 800, color: 'var(--danger, #dc2626)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <ShieldCheck size={16} /> Official Seizure Memo
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', fontSize: '13px', color: 'var(--ink)' }}>
+                      <p style={{ margin: 0 }}><strong>Samples Seized:</strong> {selected.seizureMemo.samplesSeized}</p>
+                      <p style={{ margin: 0 }}><strong>Samples Released:</strong> {selected.seizureMemo.samplesReleased}</p>
+                    </div>
+                    <p style={{ margin: '8px 0 0 0', fontSize: '13px', color: 'var(--ink)' }}>
+                      <strong>Disposal Note:</strong> {selected.seizureMemo.disposalNote}
+                    </p>
+                    {selected.seizureMemo.reasonsToBelieve && (
+                      <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--muted)' }}>
+                        <strong>Reasons to Believe:</strong> {selected.seizureMemo.reasonsToBelieve}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {showSeizureForm && (
+                  <form
+                    onSubmit={handleSeizureSubmit}
+                    style={{
+                      padding: '20px',
+                      border: '1px solid var(--border, #cbd5e1)',
+                      borderRadius: '12px',
+                      backgroundColor: 'var(--bg, #f8fafc)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '14px',
+                    }}
+                  >
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--navy)' }}>
+                      Generate Seizure Memo
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Seized</label>
+                        <input
+                          type="number"
+                          min="0"
+                          required
+                          value={seizureForm.samplesSeized}
+                          onChange={(e) => setSeizureForm({ ...seizureForm, samplesSeized: e.target.value })}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            fontSize: '13px',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Samples Released</label>
+                        <input
+                          type="number"
+                          min="0"
+                          required
+                          value={seizureForm.samplesReleased}
+                          onChange={(e) => setSeizureForm({ ...seizureForm, samplesReleased: e.target.value })}
+                          style={{
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--border)',
+                            fontSize: '13px',
+                            outline: 'none',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Disposal Note</label>
+                      <textarea
+                        required
+                        value={seizureForm.disposalNote}
+                        onChange={(e) => setSeizureForm({ ...seizureForm, disposalNote: e.target.value })}
+                        placeholder="e.g. Samples to be disposed as per applicable procedure after investigation"
+                        rows={3}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          fontSize: '13px',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink)' }}>Reasons to Believe (recommended)</label>
+                      <textarea
+                        value={seizureForm.reasonsToBelieve}
+                        onChange={(e) => setSeizureForm({ ...seizureForm, reasonsToBelieve: e.target.value })}
+                        placeholder="e.g. Consumer Care declaration missing, MRP mismatch observed on physical inspection"
+                        rows={3}
+                        style={{
+                          padding: '8px 12px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          fontSize: '13px',
+                          outline: 'none',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                      <button
+                        type="submit"
+                        disabled={seizureSubmitting}
+                        style={{
+                          backgroundColor: 'var(--navy)',
+                          color: '#ffffff',
+                          padding: '8px 18px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          fontWeight: 700,
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {seizureSubmitting ? 'Saving...' : 'Save Seizure Memo'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowSeizureForm(false)}
+                        style={{
+                          backgroundColor: 'var(--surface)',
+                          color: 'var(--ink)',
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border)',
+                          fontWeight: 600,
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Evidence Breakdown */}
+                <EvidencePanel
+                  extractedData={selected.extractedData}
+                  violations={selected.violations}
+                  imageUrl={selected.images?.[0]}
+                />
+              </div>
+            </div>
           </div>
         );
       })()}
