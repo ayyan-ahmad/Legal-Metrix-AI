@@ -8,7 +8,7 @@ import History from './pages/History';
 import Analytics from './pages/Analytics';
 import ProtectedRoute from './components/ProtectedRoute';
 
-import AdminLayout from './components/admin/adminLayout';
+import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminOfficers from './pages/admin/AdminOfficer';
 
