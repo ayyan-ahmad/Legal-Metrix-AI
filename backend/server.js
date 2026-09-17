@@ -12,7 +12,7 @@ const aiRoutes = require('./src/routes/aiRoutes');
 const inspectionRoutes = require('./src/routes/inspectionRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
-
+const adminRoutes = require('./src/routes/admin/admin');
 
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 
@@ -29,6 +29,7 @@ app.use('/api/inspections', inspectionRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'LegalMetrix AI backend is running' });

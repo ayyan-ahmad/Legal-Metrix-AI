@@ -54,7 +54,7 @@ function Login() {
         const response = await API.post('/auth/login', { email, password });
         login(response.data.user, response.data.token);
         if (response.data.user.role === 'admin') {
-          navigate('/admin-dashboard');
+          navigate('/admin');
         } else {
           navigate('/dashboard');
         }
@@ -68,7 +68,7 @@ function Login() {
         setTimeout(() => {
           login(loginRes.data.user, loginRes.data.token);
           if (loginRes.data.user.role === 'admin') {
-            navigate('/admin-dashboard');
+            navigate('/admin');
           } else {
             navigate('/dashboard');
           }

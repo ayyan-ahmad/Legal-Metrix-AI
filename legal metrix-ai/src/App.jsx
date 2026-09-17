@@ -6,75 +6,85 @@ import { useAuth } from './context/AuthContext';
 import ScanProduct from './pages/ScanProduct';
 import History from './pages/History';
 import Analytics from './pages/Analytics';
+import ProtectedRoute from './components/ProtectedRoute';
+
+import AdminLayout from './components/admin/adminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminOfficers from './pages/admin/AdminOfficer';
+
+function AdminPanel() {
+  return (
+    <AdminLayout>
+      <AdminOverview />
+    </AdminLayout>
+  );
+}
 
 function App() {
   const { user } = useAuth();
 
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <Login />} />
       <Route
         path="/dashboard"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout>
               <Dashboard />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
       <Route
         path="/scan"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout>
               <ScanProduct />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
       <Route
         path="/history"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout>
               <History />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
       <Route
         path="/analytics"
         element={
-          user ? (
+          <ProtectedRoute>
             <Layout>
               <Analytics />
             </Layout>
-          ) : (
-            <Navigate to="/login" />
-          )
+          </ProtectedRoute>
         }
       />
       <Route
-        path="/admin-dashboard"
+        path="/admin"
         element={
-          user ? (
-            <div style={{ padding: '24px' }}>
-              <h2>System Administrator Dashboard</h2>
-              <p>Coming soon...</p>
-            </div>
-          ) : (
-            <Navigate to="/login" />
-          )
+          <ProtectedRoute requiredRole="admin">
+            <AdminPanel />
+          </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin-dashboard' : '/dashboard') : '/login'} />} />
+      <Route
+        path="/admin/officers"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminLayout>
+              <AdminOfficers />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'} />} />
     </Routes>
   );
 }
