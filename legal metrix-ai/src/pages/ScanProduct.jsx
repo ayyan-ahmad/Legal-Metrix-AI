@@ -722,10 +722,10 @@ function ScanProduct() {
                   borderRadius: '12px',
                   overflow: 'hidden',
                   border: `1px solid ${error.type === 'network' ? '#C84B31' :
-                      error.type === 'auth' ? 'var(--amber)' :
-                        error.type === 'image' ? '#6B4EFF' :
-                          error.type === 'server' ? 'var(--danger)' :
-                            'var(--danger)'
+                    error.type === 'auth' ? 'var(--amber)' :
+                      error.type === 'image' ? '#6B4EFF' :
+                        error.type === 'server' ? 'var(--danger)' :
+                          'var(--danger)'
                     }44`,
                   animation: 'step-slide 0.3s ease forwards',
                 }}>
@@ -753,9 +753,9 @@ function ScanProduct() {
                               'var(--danger-light)'
                       ),
                       border: `1px solid ${error.type === 'network' ? '#C84B3130' :
-                          error.type === 'auth' ? 'var(--amber)44' :
-                            error.type === 'image' ? '#6B4EFF30' :
-                              'var(--danger)30'
+                        error.type === 'auth' ? 'var(--amber)44' :
+                          error.type === 'image' ? '#6B4EFF30' :
+                            'var(--danger)30'
                         }`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>

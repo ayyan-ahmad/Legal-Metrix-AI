@@ -33,10 +33,24 @@ async function getImageData(imageInput, defaultMime = 'image/jpeg') {
   }
 }
 
+const Rule = require('../models/Rule');
+
 async function extractProductInfo(imageInput, mimeType = 'image/jpeg') {
   const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
 
   const { base64, mimeType: resolvedMime } = await getImageData(imageInput, mimeType);
+
+  // Database se active rules fetch karo
+  const dbRules = await Rule.find({});
+  const defaultFields = ['mrp', 'netQuantity', 'manufacturer', 'consumerCare', 'manufacturingDate', 'address'];
+  
+  // Agar database mein rules hain toh unka use karo, nahi toh defaults use karo
+  const fieldsSet = new Set(dbRules.length > 0 ? dbRules.map(r => r.field) : defaultFields);
+  // productName hta diya kyunki user khud daal raha hai
+  const activeFields = Array.from(fieldsSet);
+
+  const formatFields = activeFields.map(f => `"${f}": "string or null"`).join(',\n      ');
+  const formatConfidence = activeFields.map(f => `"${f}": 0.0 to 1.0`).join(',\n        ');
 
   const prompt = `
     Analyze this packaged product image carefully. Extract the following
@@ -45,21 +59,9 @@ async function extractProductInfo(imageInput, mimeType = 'image/jpeg') {
 
     Format:
     {
-      "productName": "string or null",
-      "mrp": "string or null",
-      "netQuantity": "string or null",
-      "manufacturer": "string or null",
-      "consumerCare": "string or null",
-      "manufacturingDate": "string or null",
-      "address": "string or null",
+      ${formatFields},
       "confidence": {
-        "productName": 0.0 to 1.0,
-        "mrp": 0.0 to 1.0,
-        "netQuantity": 0.0 to 1.0,
-        "manufacturer": 0.0 to 1.0,
-        "consumerCare": 0.0 to 1.0,
-        "manufacturingDate": 0.0 to 1.0,
-        "address": 0.0 to 1.0
+        ${formatConfidence}
       }
     }
 

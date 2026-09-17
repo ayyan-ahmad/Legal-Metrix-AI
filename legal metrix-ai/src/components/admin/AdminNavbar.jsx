@@ -7,7 +7,7 @@ const ADMIN_NAV_LINKS = [
   { to: '/admin', label: 'Overview', Icon: LayoutDashboard },
   { to: '/admin/officers', label: 'Officers', Icon: Users },
   { to: '/admin/inspections', label: 'All Inspections', Icon: ClipboardList },
-  { to: '/rules', label: 'Manage Rules', Icon: Settings },
+  { to: '/admin/rules', label: 'Manage Rules', Icon: Settings },
 ];
 
 function AdminNavbar() {

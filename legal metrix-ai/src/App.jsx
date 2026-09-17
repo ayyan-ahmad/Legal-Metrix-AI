@@ -11,6 +11,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './pages/admin/AdminOverview';
 import AdminOfficers from './pages/admin/AdminOfficer';
+import AdminInspections from './pages/admin/AdminInspection';
+import AdminRules from './pages/admin/AdminRule';
 
 function AdminPanel() {
   return (
@@ -84,6 +86,26 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/admin/inspections"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminLayout>
+              <AdminInspections />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/rules"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <AdminLayout>
+        <AdminRules />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
       <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'} />} />
     </Routes>
   );
