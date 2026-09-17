@@ -37,6 +37,10 @@ function Login() {
     setMode(newMode);
     setError('');
     setSuccess('');
+    setEmail('');
+    setPassword('');
+    setName('');
+    setRole('');
   };
 
   const handleSubmit = async (e) => {
@@ -49,7 +53,11 @@ function Login() {
       if (mode === 'login') {
         const response = await API.post('/auth/login', { email, password });
         login(response.data.user, response.data.token);
-        navigate('/dashboard');
+        if (response.data.user.role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         // Register mode
         await API.post('/auth/register', { name, email, password, role });
@@ -59,7 +67,11 @@ function Login() {
         const loginRes = await API.post('/auth/login', { email, password });
         setTimeout(() => {
           login(loginRes.data.user, loginRes.data.token);
-          navigate('/dashboard');
+          if (loginRes.data.user.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else {
+            navigate('/dashboard');
+          }
         }, 800);
       }
     } catch (err) {

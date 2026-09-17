@@ -61,7 +61,20 @@ function App() {
           )
         }
       />
-      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
+      <Route
+        path="/admin-dashboard"
+        element={
+          user ? (
+            <div style={{ padding: '24px' }}>
+              <h2>System Administrator Dashboard</h2>
+              <p>Coming soon...</p>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin-dashboard' : '/dashboard') : '/login'} />} />
     </Routes>
   );
 }
