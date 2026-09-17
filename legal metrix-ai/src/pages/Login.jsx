@@ -62,9 +62,10 @@ function Login() {
         // Register mode
         await API.post('/auth/register', { name, email, password, role });
         setSuccess('Registration successful! Logging you in...');
-        
+
         // Auto login after registration
         const loginRes = await API.post('/auth/login', { email, password });
+        // Loading stays true until navigation happens
         setTimeout(() => {
           login(loginRes.data.user, loginRes.data.token);
           if (loginRes.data.user.role === 'admin') {
@@ -73,6 +74,8 @@ function Login() {
             navigate('/dashboard');
           }
         }, 800);
+        // Return early so finally doesn't reset loading before navigation
+        return;
       }
     } catch (err) {
       setError(err.response?.data?.message || (mode === 'login' ? 'Invalid credentials' : 'Registration failed'));

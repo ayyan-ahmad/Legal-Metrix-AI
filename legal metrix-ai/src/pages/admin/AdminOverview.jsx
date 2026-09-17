@@ -23,7 +23,21 @@ function AdminOverview() {
     }
   };
 
-  if (loading) return <p style={{ color: 'var(--text)' }}>Loading stats...</p>;
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        padding: '80px 20px', gap: '16px', color: 'var(--muted)'
+      }}>
+        <div style={{
+          width: '40px', height: '40px', borderRadius: '50%',
+          border: '3px solid var(--border)', borderTopColor: 'var(--amber)',
+          animation: 'spin 0.8s linear infinite'
+        }} />
+        <p style={{ fontWeight: 500, fontSize: '15px' }}>Loading Admin Overview...</p>
+      </div>
+    );
+  }
   if (error) return <p style={{ color: '#F87171' }}>{error}</p>;
 
   const cards = [

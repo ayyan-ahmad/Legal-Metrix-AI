@@ -57,7 +57,7 @@ function AdminNavbar() {
           }}
         >
           <Scale size={20} color="var(--amber)" strokeWidth={2.2} />
-          LegalMetrix <span style={{ color: 'var(--amber)', fontWeight: 500 }}>Admin</span>
+          LegalMetrix <span style={{ color: 'var(--amber)', fontWeight: 500 }}>AI</span>
         </Link>
 
         {/* Desktop Links */}
