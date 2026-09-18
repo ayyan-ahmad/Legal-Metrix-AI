@@ -491,227 +491,122 @@ function LandingPage() {
         </div>
       </Reveal>
 
-      {/* ── Premium Enterprise Footer ────────────────────────── */}
+      {/* ── Footer ───────────────────────────────────────────── */}
       <footer style={{
         position: 'relative',
         backgroundColor: '#071322',
-        backgroundImage: 'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(15, 110, 86, 0.15), transparent)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        backgroundImage: `linear-gradient(rgba(7,19,34,0.91), rgba(7,19,34,0.91)), url(${boxesBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        borderTop: '1px solid rgba(255,255,255,0.07)',
         color: '#fff',
-        paddingTop: '64px',
-        overflow: 'hidden'
+        paddingTop: '60px',
       }}>
-        {/* Top glowing accent hairline */}
-        <div style={{
-          position: 'absolute', top: 0, left: '10%', right: '10%', height: '1px',
-          background: 'linear-gradient(90deg, transparent, var(--teal-light), transparent)',
-          opacity: 0.7
-        }} />
-
         <div className="px-5 sm:px-8" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          
-          {/* Footer Header Bar: System Status & Security Pill */}
-          <div style={{
-            display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center',
-            gap: '16px', padding: '16px 24px', marginBottom: '56px',
-            backgroundColor: 'rgba(255, 255, 255, 0.03)',
-            borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.06)',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{
-                width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981',
-                boxShadow: '0 0 10px #10b981', display: 'inline-block'
-              }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
-                System Operational: <span style={{ color: '#34d399', fontWeight: 700 }}>AI Inspection Engine v2.4 Active</span>
-              </span>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.55)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lock size={13} color="var(--teal-light)" /> 256-Bit Encrypted Audit Trail
-              </span>
-              <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.55)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <ShieldCheck size={14} color="#60a5fa" /> Govt Metrology Standard
-              </span>
-            </div>
-          </div>
-
-          {/* 4-Column Main Content Grid */}
+          {/* Main Grid: 3 columns */}
           <div style={{
-            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '48px',
-            paddingBottom: '56px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr 1fr',
+            gap: '48px',
+            paddingBottom: '48px',
+            borderBottom: '1px solid rgba(255,255,255,0.07)',
           }}>
-            
-            {/* Col 1: Brand & Enterprise Profile */}
-            <div style={{ maxWidth: '320px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+
+            {/* Col 1 — Brand */}
+            <div style={{ maxWidth: '340px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                 <div style={{
-                  width: '36px', height: '36px', borderRadius: '10px',
-                  backgroundColor: 'rgba(15, 110, 86, 0.25)', border: '1px solid rgba(52, 211, 153, 0.3)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  width: '34px', height: '34px', borderRadius: '9px',
+                  backgroundColor: 'rgba(15,110,86,0.2)', border: '1px solid rgba(52,211,153,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                 }}>
-                  <Scale size={20} color="var(--teal-light)" strokeWidth={2.3} />
+                  <Scale size={18} color="var(--teal-light)" strokeWidth={2.3} />
                 </div>
-                <span style={{ fontSize: '19px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
-                  LegalMetrix <span style={{ color: 'var(--teal-light)', fontWeight: 600 }}>AI</span>
+                <span style={{ fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>
+                  LegalMetrix <span style={{ color: 'var(--teal-light)', fontWeight: 500 }}>AI</span>
                 </span>
               </div>
-
-              <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: '20px' }}>
-                Automated Legal Metrology compliance auditing for packaged commodities. Powered by high-precision OCR vision models & automated penalty calculation.
+              <p style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.75, margin: '0 0 20px' }}>
+                AI-powered Legal Metrology compliance auditing for packaged commodities — built for enforcement officers across India.
               </p>
-
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <span style={{
-                  fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px',
-                  backgroundColor: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)',
-                  border: '1px solid rgba(255,255,255,0.08)'
-                }}>
-                  SIH2024 Project
-                </span>
-                <span style={{
-                  fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '6px',
-                  backgroundColor: 'rgba(15, 110, 86, 0.2)', color: 'var(--teal-light)',
-                  border: '1px solid rgba(52, 211, 153, 0.2)'
-                }}>
-                  SIH26034
-                </span>
-              </div>
+              <span style={{
+                display: 'inline-block', fontSize: '11px', fontWeight: 700,
+                padding: '4px 10px', borderRadius: '6px',
+                backgroundColor: 'rgba(15,110,86,0.15)', color: 'var(--teal-light)',
+                border: '1px solid rgba(52,211,153,0.2)', letterSpacing: '0.3px',
+              }}>
+                SIH26034
+              </span>
             </div>
 
-            {/* Col 2: AI Audit Capabilities */}
+            {/* Col 2 — Navigation */}
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--teal-light)', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '22px' }}>
-                Core Platform Features
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '13px' }}>
-                {[
-                  'Automated OCR Label Extraction',
-                  'Mandatory Declaration Verification',
-                  'Net Quantity & Weight Verification',
-                  'MRP & Date Declaration Audits',
-                  'Automated Violation Penalty Scoring',
-                  'PDF Inspection Report Generator'
-                ].map((item) => (
-                  <div
-                    key={item}
-                    style={{
-                      fontSize: '13.5px', color: 'rgba(255,255,255,0.7)',
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      cursor: 'default', transition: 'color 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
-                  >
-                    <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: 'var(--teal-light)' }} />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Col 3: Navigation & Rules */}
-            <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '22px' }}>
-                Navigation & Regulatory
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '13px' }}>
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1.2px', margin: '0 0 20px' }}>
+                Navigation
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {['Features', 'How it Works', 'FAQ'].map((label) => (
                   <button
                     key={label}
                     onClick={() => scrollTo(label.toLowerCase().replace(/\s+/g, '-'))}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#fff';
-                      e.currentTarget.style.transform = 'translateX(4px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-                      e.currentTarget.style.transform = 'translateX(0)';
-                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
                     style={{
-                      background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left',
-                      fontSize: '13.5px', color: 'rgba(255,255,255,0.7)', padding: 0,
-                      transition: 'all 0.2s ease', fontWeight: 500
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      textAlign: 'left', fontSize: '14px', padding: 0,
+                      color: 'rgba(255,255,255,0.55)', fontWeight: 500,
+                      transition: 'color 0.18s ease',
                     }}
                   >
                     {label}
                   </button>
                 ))}
-                <span style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.5)', marginTop: '6px' }}>
-                  Legal Metrology Act, 2009
-                </span>
-                <span style={{ fontSize: '13.5px', color: 'rgba(255,255,255,0.5)' }}>
-                  Packaged Commodities Rules (PCR)
-                </span>
               </div>
             </div>
 
-            {/* Col 4: Portals & Access */}
+            {/* Col 3 — Access */}
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '1.2px', marginBottom: '22px' }}>
-                Officer & Portal Access
-              </div>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: '20px' }}>
-                Authorized access portal for enforcement officers, state inspectors, and department administrators.
+              <p style={{ fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1.2px', margin: '0 0 20px' }}>
+                Access
               </p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button
-                  onClick={() => openModal('login')}
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    color: '#fff', border: '1px solid rgba(255, 255, 255, 0.12)',
-                    padding: '10px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
-                    cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--teal)'; e.currentTarget.style.borderColor = 'var(--teal)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)'; }}
-                >
-                  <LogIn size={15} /> Officer Sign In
-                </button>
-
-                <button
-                  onClick={() => openModal('register')}
-                  style={{
-                    backgroundColor: 'transparent',
-                    color: 'rgba(255, 255, 255, 0.8)', border: '1px solid rgba(255, 255, 255, 0.08)',
-                    padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
-                    cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255, 255, 255, 0.8)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'; }}
-                >
-                  Register New Account
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {[
+                  { label: 'Officer Sign In', action: () => openModal('login') },
+                  { label: 'Register Account', action: () => openModal('register') },
+                ].map(({ label, action }) => (
+                  <button
+                    key={label}
+                    onClick={action}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.55)'}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      textAlign: 'left', fontSize: '14px', padding: 0,
+                      color: 'rgba(255,255,255,0.55)', fontWeight: 500,
+                      transition: 'color 0.18s ease',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>
-
           </div>
 
-          {/* Bottom Copyright & Badges Bar */}
+          {/* Bottom Bar — Copyright */}
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            flexWrap: 'wrap', gap: '16px', padding: '28px 0',
+            flexWrap: 'wrap', gap: '12px', padding: '22px 0',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>
-                © 2026 LegalMetrix AI. All rights reserved.
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.4)' }}>
-                Compliance Standard ISO/IEC 27001
-              </span>
-              <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
-              <span style={{ fontSize: '12.5px', color: 'rgba(255,255,255,0.45)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <Sparkles size={13} color="var(--teal-light)" /> Smart India Hackathon (SIH26034)
-              </span>
-            </div>
+            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
+              © 2026 LegalMetrix AI. All rights reserved.
+            </span>
+            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Sparkles size={13} color="var(--teal-light)" />
+              Smart India Hackathon · SIH26034
+            </span>
           </div>
 
         </div>
