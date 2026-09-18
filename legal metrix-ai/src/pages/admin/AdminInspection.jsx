@@ -202,106 +202,164 @@ function AdminInspections() {
         {/* Error Handling */}
         {error && <div style={{ padding: '16px', color: 'var(--danger)', backgroundColor: 'var(--danger-light)', fontSize: '14px', fontWeight: 600 }}>{error}</div>}
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-                {['Product', 'Officer', 'Status', 'Score', 'Violations', 'Date'].map(h => (
-                  <th key={h} style={thStyle}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '80px', textAlign: 'center' }}>
-                    <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-                    <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid var(--border)', borderTopColor: 'var(--teal)', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
-                    <div style={{ color: 'var(--muted)', fontSize: '14px', fontWeight: 500 }}>Fetching data...</div>
-                  </td>
-                </tr>
-              ) : inspections.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '60px 24px', textAlign: 'center' }}>
-                    <ClipboardList size={36} color="var(--border)" style={{ marginBottom: '12px', display: 'inline-block' }} />
-                    <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>No inspections found</p>
-                    <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>Try adjusting your filters to see more results.</p>
-                  </td>
-                </tr>
-              ) : (
-                inspections.map((insp, idx) => (
-                  <tr
-                    key={insp._id}
-                    style={{
-                      borderBottom: idx < inspections.length - 1 ? '1px solid var(--border)' : 'none',
-                      transition: 'background-color 0.15s ease',
-                      cursor: 'default',
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                  >
-                    {/* Product */}
-                    <td style={{ padding: '16px 24px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {insp.images?.[0] ? (
-                          <img src={insp.images[0]} alt="product" className="shrink-0" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)' }} />
-                        ) : (
-                          <div className="shrink-0 flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'var(--bg)', border: '1px solid var(--border)' }}>
-                            <Package size={18} color="var(--muted)" />
-                          </div>
-                        )}
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>{insp.productName}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace', marginTop: '2px' }}>#{insp._id.slice(-8)}</div>
-                        </div>
+        {/* Table / List Container */}
+        {loading ? (
+          <div style={{ padding: '80px', textAlign: 'center' }}>
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            <div style={{ width: '30px', height: '30px', borderRadius: '50%', border: '2px solid var(--border)', borderTopColor: 'var(--teal)', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
+            <div style={{ color: 'var(--muted)', fontSize: '14px', fontWeight: 500 }}>Fetching data...</div>
+          </div>
+        ) : inspections.length === 0 ? (
+          <div style={{ padding: '60px 24px', textAlign: 'center' }}>
+            <ClipboardList size={36} color="var(--border)" style={{ marginBottom: '12px', display: 'inline-block' }} />
+            <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>No inspections found</p>
+            <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>Try adjusting your filters to see more results.</p>
+          </div>
+        ) : (
+          <>
+            {/* ── Mobile Card List (< sm) ── */}
+            <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+              {inspections.map((insp, idx) => (
+                <div
+                  key={insp._id}
+                  style={{
+                    padding: '14px 16px',
+                    backgroundColor: idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
+                    transition: 'background 0.15s ease',
+                  }}
+                >
+                  {/* Row 1: thumbnail + product + ref */}
+                  <div className="flex items-start gap-3 mb-3">
+                    {insp.images?.[0] ? (
+                      <img src={insp.images[0]} alt="product" className="shrink-0" style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)' }} />
+                    ) : (
+                      <div className="shrink-0 flex items-center justify-center" style={{ width: '42px', height: '42px', borderRadius: '8px', backgroundColor: 'var(--bg)', border: '1px solid var(--border)' }}>
+                        <Package size={18} color="var(--muted)" />
                       </div>
-                    </td>
-
-                    {/* Officer */}
-                    <td style={{ padding: '16px 24px' }}>
-                      {insp.officer ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--ink)', fontWeight: 500 }}>
-                          <UserCircle2 size={16} color="var(--muted)" />
-                          {insp.officer.name}
-                        </div>
-                      ) : (
-                        <span style={{ color: 'var(--muted)', fontSize: '13px' }}>—</span>
-                      )}
-                    </td>
-
-                    {/* Status */}
-                    <td style={{ padding: '16px 24px' }}>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)', lineHeight: 1.3 }}>{insp.productName}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>#{insp._id.slice(-8)}</div>
+                    </div>
+                    {/* Status top-right */}
+                    <div className="shrink-0" style={{ transform: 'scale(0.85)', transformOrigin: 'top right' }}>
                       {getStatusBadge(insp.status)}
-                    </td>
+                    </div>
+                  </div>
 
-                    {/* Score */}
-                    <td style={{ padding: '16px 24px' }}>
-                      <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
-                        {insp.complianceScore ?? 0}%
-                      </span>
-                    </td>
-
-                    {/* Violations */}
-                    <td style={{ padding: '16px 24px' }}>
-                      <span style={{
-                        fontSize: '13px', fontWeight: 600,
-                        color: insp.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)'
-                      }}>
+                  {/* Row 2: Score + Violations + Officer */}
+                  <div className="flex items-center gap-4 flex-wrap mb-2">
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Score</div>
+                      <span style={{ fontWeight: 800, fontSize: '13px', color: 'var(--ink)' }}>{insp.complianceScore ?? 0}%</span>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Violations</div>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: insp.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)' }}>
                         {insp.violations?.length || 0}
                       </span>
-                    </td>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Officer</div>
+                      <div style={{ fontSize: '12px', color: 'var(--ink)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <UserCircle2 size={12} color="var(--muted)" />
+                        {insp.officer ? insp.officer.name : '—'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Row 3: Date */}
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                    {new Date(insp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+              ))}
+            </div>
 
-                    {/* Date */}
-                    <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
-                      {new Date(insp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                    </td>
+            {/* ── Desktop Table (≥ sm) ── */}
+            <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+                    {['Product', 'Officer', 'Status', 'Score', 'Violations', 'Date'].map(h => (
+                      <th key={h} style={thStyle}>{h}</th>
+                    ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {inspections.map((insp, idx) => (
+                    <tr
+                      key={insp._id}
+                      style={{
+                        borderBottom: idx < inspections.length - 1 ? '1px solid var(--border)' : 'none',
+                        transition: 'background-color 0.15s ease',
+                        cursor: 'default',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                    >
+                      {/* Product */}
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          {insp.images?.[0] ? (
+                            <img src={insp.images[0]} alt="product" className="shrink-0" style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid var(--border)' }} />
+                          ) : (
+                            <div className="shrink-0 flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: 'var(--bg)', border: '1px solid var(--border)' }}>
+                              <Package size={18} color="var(--muted)" />
+                            </div>
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>{insp.productName}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace', marginTop: '2px' }}>#{insp._id.slice(-8)}</div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Officer */}
+                      <td style={{ padding: '16px 24px' }}>
+                        {insp.officer ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--ink)', fontWeight: 500 }}>
+                            <UserCircle2 size={16} color="var(--muted)" />
+                            {insp.officer.name}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--muted)', fontSize: '13px' }}>—</span>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td style={{ padding: '16px 24px' }}>
+                        {getStatusBadge(insp.status)}
+                      </td>
+
+                      {/* Score */}
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>
+                          {insp.complianceScore ?? 0}%
+                        </span>
+                      </td>
+
+                      {/* Violations */}
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{
+                          fontSize: '13px', fontWeight: 600,
+                          color: insp.violations?.length > 0 ? 'var(--danger)' : 'var(--teal)'
+                        }}>
+                          {insp.violations?.length || 0}
+                        </span>
+                      </td>
+
+                      {/* Date */}
+                      <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
+                        {new Date(insp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
 
         {/* Pagination Controls */}
         {pagination.totalPages > 1 && (

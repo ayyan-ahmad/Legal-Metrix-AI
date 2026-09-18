@@ -346,107 +346,192 @@ function AdminOfficers() {
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-                {['Officer', 'Contact', 'Total Scans', 'Pass Rate', 'Joined Date', 'Actions'].map((h, i) => (
-                  <th key={h} style={{ ...thStyle, textAlign: i === 5 ? 'right' : 'left' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOfficers.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: '48px 24px', textAlign: 'center' }}>
-                    <Users size={36} color="var(--border)" style={{ marginBottom: '12px', display: 'inline-block' }} />
-                    <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
-                      {officers.length === 0 ? 'No officers registered yet' : 'No matching officers found'}
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                filteredOfficers.map((officer, idx) => {
-                  const isHighPerformer = officer.passRate >= 70;
-                  const isWarning = officer.passRate < 40;
-                  return (
-                    <tr
-                      key={officer._id}
+        {filteredOfficers.length === 0 ? (
+          <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+            <Users size={36} color="var(--border)" style={{ marginBottom: '12px', display: 'inline-block' }} />
+            <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
+              {officers.length === 0 ? 'No officers registered yet' : 'No matching officers found'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* ── Mobile Card List (< sm) ── */}
+            <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+              {filteredOfficers.map((officer, idx) => {
+                const isHighPerformer = officer.passRate >= 70;
+                const isWarning = officer.passRate < 40;
+                return (
+                  <div
+                    key={officer._id}
+                    style={{
+                      padding: '14px 16px',
+                      backgroundColor: idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    {/* Row 1: thumbnail + name + ref */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="shrink-0 flex items-center justify-center" style={{
+                        width: '42px', height: '42px', borderRadius: '12px',
+                        backgroundColor: 'var(--amber-light)', border: '1px solid var(--amber)',
+                      }}>
+                        <UserCircle2 size={22} color="var(--amber)" strokeWidth={2} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)', lineHeight: 1.3 }}>
+                          {officer.name}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                          #{officer._id.slice(-8)}
+                        </div>
+                      </div>
+                      {/* Pass rate top-right */}
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        backgroundColor: isHighPerformer ? 'var(--teal-light)' : isWarning ? 'var(--danger-light)' : 'var(--amber-light)',
+                        color: isHighPerformer ? 'var(--teal)' : isWarning ? 'var(--danger)' : 'var(--amber)',
+                        padding: '3px 9px', borderRadius: '99px', fontSize: '11px', fontWeight: 700,
+                      }}>
+                        {officer.passRate}%
+                      </span>
+                    </div>
+
+                    {/* Row 2: Contact + Scans */}
+                    <div className="flex items-center gap-4 flex-wrap mb-3">
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Total Scans</div>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--bg)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border)' }}>
+                          <Activity size={12} color="var(--navy)" />
+                          <span style={{ fontWeight: 700, fontSize: '12px', color: 'var(--navy)' }}>{officer.totalScans}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Contact</div>
+                        <div style={{ fontSize: '12px', color: 'var(--ink)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Mail size={12} color="var(--muted)"/> {officer.email}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row 3: Action */}
+                    <button
+                      onClick={() => setSelectedOfficer(officer)}
                       style={{
-                        borderBottom: idx < filteredOfficers.length - 1 ? '1px solid var(--border)' : 'none',
-                        transition: 'background-color 0.15s ease',
-                        cursor: 'default',
+                        width: '100%',
+                        backgroundColor: 'var(--surface)',
+                        color: 'var(--navy)',
+                        border: '1px solid var(--navy)',
+                        borderRadius: '8px',
+                        padding: '8px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        transition: 'all 0.15s ease',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                     >
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                          <div className="shrink-0 flex items-center justify-center" style={{
-                            width: '42px', height: '42px', borderRadius: '12px',
-                            backgroundColor: 'var(--amber-light)', border: '1px solid var(--amber)',
-                          }}>
-                            <UserCircle2 size={22} color="var(--amber)" strokeWidth={2} />
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>{officer.name}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace', marginTop: '2px' }}>
-                              #{officer._id.slice(-8)}
+                      Details <ChevronRight size={14} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Desktop Table (≥ sm) ── */}
+            <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+                    {['Officer', 'Contact', 'Total Scans', 'Pass Rate', 'Joined Date', 'Actions'].map((h, i) => (
+                      <th key={h} style={{ ...thStyle, textAlign: i === 5 ? 'right' : 'left' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOfficers.map((officer, idx) => {
+                    const isHighPerformer = officer.passRate >= 70;
+                    const isWarning = officer.passRate < 40;
+                    return (
+                      <tr
+                        key={officer._id}
+                        style={{
+                          borderBottom: idx < filteredOfficers.length - 1 ? '1px solid var(--border)' : 'none',
+                          transition: 'background-color 0.15s ease',
+                          cursor: 'default',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                      >
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <div className="shrink-0 flex items-center justify-center" style={{
+                              width: '42px', height: '42px', borderRadius: '12px',
+                              backgroundColor: 'var(--amber-light)', border: '1px solid var(--amber)',
+                            }}>
+                              <UserCircle2 size={22} color="var(--amber)" strokeWidth={2} />
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ink)' }}>{officer.name}</div>
+                              <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'monospace', marginTop: '2px' }}>
+                                #{officer._id.slice(-8)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--ink)' }}>
-                          <Mail size={14} color="var(--muted)" /> {officer.email}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--bg)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                          <Activity size={14} color="var(--navy)" />
-                          <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--navy)' }}>{officer.totalScans}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px' }}>
-                        <span style={{
-                          display: 'inline-flex', alignItems: 'center', gap: '6px',
-                          backgroundColor: isHighPerformer ? 'var(--teal-light)' : isWarning ? 'var(--danger-light)' : 'var(--amber-light)',
-                          color: isHighPerformer ? 'var(--teal)' : isWarning ? 'var(--danger)' : 'var(--amber)',
-                          padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
-                        }}>
-                          {officer.passRate}%
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Calendar size={14} />
-                          {new Date(officer.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                        <button
-                          onClick={() => setSelectedOfficer(officer)}
-                          style={{
-                            backgroundColor: 'transparent', border: '1px solid var(--border)',
-                            padding: '6px 14px', borderRadius: '8px', fontSize: '12px',
-                            fontWeight: 600, color: 'var(--navy)', cursor: 'pointer',
-                            display: 'inline-flex', alignItems: 'center', gap: '5px',
-                            transition: 'all 0.15s ease',
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--navy)'; e.currentTarget.style.color = '#FFF'; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--navy)'; }}
-                        >
-                          Details <ChevronRight size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--ink)' }}>
+                            <Mail size={14} color="var(--muted)" /> {officer.email}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', backgroundColor: 'var(--bg)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)' }}>
+                            <Activity size={14} color="var(--navy)" />
+                            <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--navy)' }}>{officer.totalScans}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px' }}>
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '6px',
+                            backgroundColor: isHighPerformer ? 'var(--teal-light)' : isWarning ? 'var(--danger-light)' : 'var(--amber-light)',
+                            color: isHighPerformer ? 'var(--teal)' : isWarning ? 'var(--danger)' : 'var(--amber)',
+                            padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
+                          }}>
+                            {officer.passRate}%
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 24px', fontSize: '13px', color: 'var(--muted)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Calendar size={14} />
+                            {new Date(officer.joinedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                          <button
+                            onClick={() => setSelectedOfficer(officer)}
+                            style={{
+                              backgroundColor: 'transparent', border: '1px solid var(--border)',
+                              padding: '6px 14px', borderRadius: '8px', fontSize: '12px',
+                              fontWeight: 600, color: 'var(--navy)', cursor: 'pointer',
+                              display: 'inline-flex', alignItems: 'center', gap: '5px',
+                              transition: 'all 0.15s ease',
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--navy)'; e.currentTarget.style.color = '#FFF'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--navy)'; }}
+                          >
+                            Details <ChevronRight size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -10,9 +10,9 @@ import { useAuth } from '../context/AuthContext';
 function ProtectedRoute({ children, requiredRole }) {
   const { user } = useAuth();
 
-  // Not logged in → login page
+  // Not logged in → landing page (modal wahan khulega)
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Admin-only route: officer/others → back to their dashboard

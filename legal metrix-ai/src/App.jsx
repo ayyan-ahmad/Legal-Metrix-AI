@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/Layout';
 import { useAuth } from './context/AuthContext';
@@ -27,7 +27,8 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} /> : <Login />} />
+      <Route path="/" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/dashboard'} replace /> : <LandingPage />} />
+      <Route path="/login" element={<Navigate to="/" replace />} />
       <Route
         path="/dashboard"
         element={
@@ -106,7 +107,7 @@ function App() {
     </ProtectedRoute>
   }
 />
-      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'} />} />
+      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/'} />} />
     </Routes>
   );
 }
