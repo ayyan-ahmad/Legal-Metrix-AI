@@ -143,8 +143,30 @@ a:hover {
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+.lp-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 22px 0;
+}
+
 /* ── ≤ 768px — Tablet / large phone ──────────────── */
 @media (max-width: 768px) {
+
+    .lp-footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+        padding-bottom: 30px !important;
+    }
+
+    .lp-footer-bottom {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+    }
 
     /* Show hamburger, hide desktop nav links */
     .lp-hamburger {
@@ -160,6 +182,12 @@ a:hover {
         grid-template-columns: 1fr;
         gap: 32px;
         padding-bottom: 36px;
+    }
+
+    .lp-footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 
     /* Hero vertical padding */

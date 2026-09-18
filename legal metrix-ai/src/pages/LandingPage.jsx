@@ -538,10 +538,7 @@ function LandingPage() {
         <div className="px-5 sm:px-8" style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
           {/* Main Grid: 3 columns */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '2fr 1fr 1fr',
-            gap: '48px',
+          <div className="lp-footer-grid" style={{
             paddingBottom: '48px',
             borderBottom: '1px solid rgba(255,255,255,0.07)',
           }}>
@@ -628,9 +625,8 @@ function LandingPage() {
           </div>
 
           {/* Bottom Bar — Copyright */}
-          <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            flexWrap: 'wrap', gap: '12px', padding: '22px 0',
+          <div className="lp-footer-bottom" style={{
+            padding: '22px 0',
           }}>
             <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
               © 2026 LegalMetrix AI. All rights reserved.
