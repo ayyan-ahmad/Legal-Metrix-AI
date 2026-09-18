@@ -32,6 +32,12 @@
 
 
 
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg);
@@ -75,4 +81,145 @@ a:hover {
     --color-surface: #FFFFFF;
     --color-bg: #F7F7F5;
     --font-family-sans: 'Inter', sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════
+   LANDING PAGE — RESPONSIVE UTILITIES
+   ═══════════════════════════════════════════════════ */
+
+/* Mobile hamburger toggle button */
+.lp-hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    color: var(--navy);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile slide-down nav drawer */
+.lp-mobile-nav {
+    display: none;
+    flex-direction: column;
+    padding: 10px 16px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 68px;
+    z-index: 98;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.lp-mobile-nav.open {
+    display: flex;
+}
+
+.lp-mobile-nav button {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.15s;
+}
+
+.lp-mobile-nav button:hover {
+    background: rgba(22, 36, 71, 0.05);
+}
+
+/* Footer 3-col grid */
+.lp-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* ── ≤ 768px — Tablet / large phone ──────────────── */
+@media (max-width: 768px) {
+
+    /* Show hamburger, hide desktop nav links */
+    .lp-hamburger {
+        display: flex;
+    }
+
+    .lp-desktop-nav {
+        display: none !important;
+    }
+
+    /* Footer stack */
+    .lp-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-bottom: 36px;
+    }
+
+    /* Hero vertical padding */
+    .lp-hero-wrap {
+        padding-top: 44px !important;
+        padding-bottom: 52px !important;
+    }
+
+    /* CTA buttons full-width */
+    .lp-hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lp-hero-ctas button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Section padding */
+    .lp-section-wrap {
+        padding-top: 44px !important;
+        padding-bottom: 44px !important;
+    }
+
+    /* Role cards stack */
+    .lp-role-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ── ≤ 480px — Small phone ──────────────────────── */
+@media (max-width: 480px) {
+    .lp-hero-wrap {
+        padding-top: 36px !important;
+        padding-bottom: 40px !important;
+    }
+
+    .lp-section-wrap {
+        padding-top: 36px !important;
+        padding-bottom: 36px !important;
+    }
+
+    /* Footer copyright bar */
+    .lp-footer-bottom {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+
+    /* Navbar: hide sign-in label, keep icon */
+    .lp-signin-text {
+        display: none;
+    }
+
+    /* Scroll-to-top button position */
+    .lp-scroll-top {
+        bottom: 16px !important;
+        right: 16px !important;
+        width: 40px !important;
+        height: 40px !important;
+    }
 }

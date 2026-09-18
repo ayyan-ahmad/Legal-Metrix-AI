@@ -116,7 +116,7 @@ function AdminOverview() {
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         <div style={{
           width: '44px', height: '44px', borderRadius: '50%',
-          border: '3px solid var(--border)', borderTopColor: 'var(--teal)',
+          border: '3px solid var(--border)', borderTopColor: 'var(--amber)',
           animation: 'spin 0.8s linear infinite',
         }} />
         <p style={{ fontWeight: 600, fontSize: '15px', color: 'var(--muted)', margin: 0 }}>
@@ -132,7 +132,7 @@ function AdminOverview() {
   const total = stats.totalInspections;
   const compRate = stats.compliancePercentage;
   const rateColor = compRate >= 75 ? 'var(--teal)' : compRate >= 50 ? 'var(--amber)' : 'var(--danger)';
-  const rateBg    = compRate >= 75 ? 'var(--teal-light)' : compRate >= 50 ? 'var(--amber-light)' : 'var(--danger-light)';
+  const rateBg = compRate >= 75 ? 'var(--teal-light)' : compRate >= 50 ? 'var(--amber-light)' : 'var(--danger-light)';
 
   return (
     <div style={{ paddingBottom: '40px' }}>
@@ -281,7 +281,7 @@ function AdminOverview() {
 
       {/* ── Main Dashboard Content Grid ───────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-7 items-start">
-        
+
         {/* LEFT COLUMN (Wider - Spans 2 cols) */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Health Bar */}
@@ -434,7 +434,7 @@ function AdminOverview() {
               { label: 'All Inspections', Icon: ClipboardCheck, path: '/admin/inspections', color: 'var(--teal)' },
               { label: 'Officers', Icon: Users, path: '/admin/officers', color: '#7C3AED' },
               { label: 'Manage Rules', Icon: Settings, path: '/admin/rules', color: 'var(--amber)' },
-              
+
             ].map(({ label, Icon: Ic, path, color }) => (
               <button
                 key={label}

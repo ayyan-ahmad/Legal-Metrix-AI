@@ -310,7 +310,82 @@ function AdminRules() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
+        <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--muted)', fontSize: '14px', fontWeight: 500 }}>
+              Loading rules...
+            </div>
+          ) : rules.length === 0 ? (
+            <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+              <Settings2 size={36} color="var(--border)" style={{ marginBottom: '12px', display: 'inline-block' }} />
+              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>No AI rules configured</p>
+              <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>Add your first rule to instruct the AI.</p>
+            </div>
+          ) : (
+            rules.map((rule, idx) => (
+              <div
+                key={rule._id}
+                style={{
+                  padding: '16px',
+                  backgroundColor: idx % 2 === 0 ? 'var(--surface)' : '#FAFCFB',
+                  transition: 'background 0.15s ease',
+                }}
+              >
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>
+                      {rule.label}
+                    </div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--navy)', fontWeight: 600, marginTop: '2px' }}>
+                      {rule.ruleId}
+                    </div>
+                  </div>
+                  {getSeverityBadge(rule.severity)}
+                </div>
+
+                <div className="flex items-center gap-4 flex-wrap mb-4">
+                  <div>
+                    <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Field</div>
+                    <div style={{ fontSize: '12px', color: 'var(--ink)', fontWeight: 500 }}>
+                      {rule.field}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Required</div>
+                    <div style={{ fontSize: '12px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      {rule.required ? (
+                        <><CheckCircle2 size={12} color="var(--teal)" /> <span style={{ color: 'var(--teal)' }}>Yes</span></>
+                      ) : (
+                        <><XCircle size={12} color="var(--muted)" /> <span style={{ color: 'var(--muted)' }}>No</span></>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditForm(rule)}
+                    style={{ ...iconBtnStyle, flex: 1, height: '36px' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--amber-light)'; e.currentTarget.style.color = 'var(--amber)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg)'; e.currentTarget.style.color = 'var(--navy)'; }}
+                  >
+                    <Edit2 size={16} /> <span style={{ marginLeft: '6px', fontSize: '13px', fontWeight: 600 }}>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(rule)}
+                    style={{ ...iconBtnStyle, flex: 1, height: '36px', color: 'var(--danger)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--danger-light)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--bg)'; }}
+                  >
+                    <Trash2 size={16} /> <span style={{ marginLeft: '6px', fontSize: '13px', fontWeight: 600 }}>Delete</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>

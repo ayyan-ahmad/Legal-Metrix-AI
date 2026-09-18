@@ -107,10 +107,12 @@ function LandingPage() {
   const [showTopBtn, setShowTopBtn] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('login');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const openModal = (mode = 'login') => {
     setModalMode(mode);
     setModalOpen(true);
+    setMobileNavOpen(false);
   };
 
   useEffect(() => {
@@ -163,7 +165,8 @@ function LandingPage() {
             </span>
           </div>
 
-          <div className="hidden md:flex" style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          {/* Desktop nav links */}
+          <div className="lp-desktop-nav hidden md:flex" style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
             {['Features', 'How it Works', 'FAQ'].map((item) => (
               <button
                 key={item}
@@ -177,8 +180,9 @@ function LandingPage() {
             ))}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button
+              className="lp-signin-btn"
               onClick={() => openModal('login')}
               style={{
                 display: 'flex', alignItems: 'center', gap: '8px',
@@ -190,15 +194,43 @@ function LandingPage() {
               onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--teal)'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(15,110,86,0.25)'; }}
               onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--navy)'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(22,36,71,0.15)'; }}
             >
-              Sign In <LogIn size={15} />
+              <span className="lp-signin-text">Sign In</span> <LogIn size={15} />
+            </button>
+
+            {/* Hamburger — visible on mobile only */}
+            <button
+              className="lp-hamburger"
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                {mobileNavOpen
+                  ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                  : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>}
+              </svg>
             </button>
           </div>
         </div>
       </nav>
 
+      {/* Mobile nav drawer */}
+      <nav className={`lp-mobile-nav${mobileNavOpen ? ' open' : ''}`}>
+        {['Features', 'How it Works', 'FAQ'].map((item) => (
+          <button
+            key={item}
+            onClick={() => { scrollTo(item.toLowerCase().replace(/\s+/g, '-')); setMobileNavOpen(false); }}
+          >
+            {item}
+          </button>
+        ))}
+        <button onClick={() => openModal('register')} style={{ color: 'var(--teal)' }}>
+          Register Account
+        </button>
+      </nav>
+
       {/* ── Hero (background: hero-bg.png — conveyor scan image) ── */}
       <div
-        className="px-5 sm:px-8"
+        className="lp-hero-wrap px-5 sm:px-8"
         style={{
           background: `linear-gradient(135deg, rgba(11,25,46,0.88) 0%, rgba(23,44,84,0.82) 55%, rgba(15,110,86,0.85) 100%), url(${heroBg}) center/cover no-repeat`,
           padding: '64px 0 72px', textAlign: 'center', color: '#fff',
@@ -236,7 +268,7 @@ function LandingPage() {
               no manual checklists.
             </p>
 
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="lp-hero-ctas" style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
                 onClick={() => openModal('login')}
                 style={{
@@ -339,7 +371,7 @@ function LandingPage() {
             </p>
           </Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', alignItems: 'stretch' }}>
+          <div className="lp-role-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', alignItems: 'stretch' }}>
             {[
               { Icon: ScanFace, title: 'Compliance Officer', color: 'var(--teal)', bg: 'var(--teal-light)', desc: 'Scan products in the field, get instant verdicts.', cta: 'Continue as Officer' },
               { Icon: UserCog, title: 'System Administrator', color: 'var(--amber)', bg: 'var(--amber-light)', desc: 'Oversee officers, inspections and rules system-wide.', cta: 'Continue as Admin' },
@@ -378,7 +410,7 @@ function LandingPage() {
       </div>
 
       {/* ── Features ─────────────────────────────────────────── */}
-      <div id="features" className="px-5 sm:px-8" style={{ ...sectionOffset, padding: '56px 0', maxWidth: '980px', margin: '0 auto' }}>
+      <div id="features" className="lp-section-wrap px-5 sm:px-8" style={{ ...sectionOffset, padding: '56px 0', maxWidth: '980px', margin: '0 auto' }}>
         <Reveal>
           <h2 style={{ fontSize: '19px', fontWeight: 800, color: 'var(--navy)', textAlign: 'center', marginBottom: '28px' }}>
             Everything an inspector needs
@@ -402,7 +434,7 @@ function LandingPage() {
       </div>
 
       {/* ── How It Works (background: verify-bg.png — document network) ── */}
-      <div id="how-it-works" className="px-5 sm:px-8" style={{
+      <div id="how-it-works" className="lp-section-wrap px-5 sm:px-8" style={{
         ...sectionOffset,
         background: `linear-gradient(135deg, rgba(11,25,46,0.94) 0%, rgba(15,110,86,0.9) 100%), url(${verifyBg}) center/cover no-repeat`,
         borderTop: '1px solid var(--border)',
@@ -449,7 +481,7 @@ function LandingPage() {
       </div>
 
       {/* ── FAQ ──────────────────────────────────────────────── */}
-      <div id="faq" className="px-5 sm:px-8" style={{ ...sectionOffset, padding: '56px 0', maxWidth: '640px', margin: '0 auto' }}>
+      <div id="faq" className="lp-section-wrap px-5 sm:px-8" style={{ ...sectionOffset, padding: '56px 0', maxWidth: '640px', margin: '0 auto' }}>
         <Reveal>
           <h2 style={{ fontSize: '19px', fontWeight: 800, color: 'var(--navy)', textAlign: 'center', marginBottom: '24px' }}>
             Frequently asked questions
