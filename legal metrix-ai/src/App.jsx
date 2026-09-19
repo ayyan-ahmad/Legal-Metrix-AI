@@ -13,6 +13,7 @@ import AdminOverview from './pages/admin/AdminOverview';
 import AdminOfficers from './pages/admin/AdminOfficer';
 import AdminInspections from './pages/admin/AdminInspection';
 import AdminRules from './pages/admin/AdminRule';
+import AdminSubmissions from './pages/admin/AdminSubmission';
 
 function AdminPanel() {
   return (
@@ -99,14 +100,24 @@ function App() {
       />
       <Route
         path="/admin/rules"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <AdminLayout>
-        <AdminRules />
-      </AdminLayout>
-    </ProtectedRoute>
-  }
-/>
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminLayout>
+              <AdminRules />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/submissions"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminLayout>
+              <AdminSubmissions />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/'} />} />
     </Routes>
   );

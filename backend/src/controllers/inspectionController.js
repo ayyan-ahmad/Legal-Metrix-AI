@@ -156,3 +156,110 @@ exports.generateSeizureMemo = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Officer submits a completed inspection for official admin record
+exports.submitForRecord = async (req, res) => {
+  try {
+    const inspection = await Inspection.findById(req.params.id);
+    if (!inspection) {
+      return res.status(404).json({ message: 'Inspection not found' });
+    }
+
+    // Access control - sirf apni khud ki inspection submit kar sake
+    if (req.user.role !== 'admin' && inspection.officer.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // Agar already submitted/approved hai, dobara submit na hone do
+    if (inspection.submission.status !== 'draft' && inspection.submission.status !== 'sent_back') {
+      return res.status(400).json({
+        message: `This inspection is already ${inspection.submission.status}`,
+      });
+    }
+
+    // Case number generate karo (sirf pehli baar, sent_back se resubmit hone pe wahi purana number use hoga)
+    let caseNumber = inspection.submission.caseNumber;
+    if (!caseNumber) {
+      const year = new Date().getFullYear();
+      const countThisYear = await Inspection.countDocuments({
+        'submission.caseNumber': { $regex: `^LM/${year}/` },
+      });
+      const nextNumber = String(countThisYear + 1).padStart(5, '0');
+      caseNumber = `LM/${year}/${nextNumber}`;
+    }
+
+    inspection.submission = {
+      status: 'submitted',
+      caseNumber,
+      submittedAt: new Date(),
+      reviewedBy: null,
+      reviewedAt: null,
+      adminRemarks: null,
+    };
+
+    await inspection.save();
+
+    res.json({
+      message: 'Inspection submitted for official record',
+      inspection,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin reviews a submitted inspection - approve or send back for correction
+exports.reviewSubmission = async (req, res) => {
+  try {
+    const { decision, remarks } = req.body; // decision: 'approved' | 'sent_back'
+
+    if (!['approved', 'sent_back'].includes(decision)) {
+      return res.status(400).json({ message: 'decision must be "approved" or "sent_back"' });
+    }
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only admins can review submissions' });
+    }
+
+    const inspection = await Inspection.findById(req.params.id);
+    if (!inspection) {
+      return res.status(404).json({ message: 'Inspection not found' });
+    }
+
+    if (inspection.submission.status !== 'submitted') {
+      return res.status(400).json({
+        message: 'Only submitted inspections can be reviewed',
+      });
+    }
+
+    inspection.submission.status = decision;
+    inspection.submission.reviewedBy = req.user.id;
+    inspection.submission.reviewedAt = new Date();
+    inspection.submission.adminRemarks = remarks || null;
+
+    await inspection.save();
+
+    res.json({
+      message: `Inspection ${decision === 'approved' ? 'approved' : 'sent back for correction'}`,
+      inspection,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin's inbox - sirf 'submitted' status wali inspections (pending review)
+exports.getSubmittedInspections = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const inspections = await Inspection.find({ 'submission.status': 'submitted' })
+      .populate('officer', 'name email')
+      .sort({ 'submission.submittedAt': -1 });
+
+    res.json(inspections);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

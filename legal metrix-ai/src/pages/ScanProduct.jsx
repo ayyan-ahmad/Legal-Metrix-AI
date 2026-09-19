@@ -59,23 +59,28 @@ const statusStyle = (status) => ({
   Icon: AlertTriangle,
 });
 
+const submissionStyle = (subStatus) => ({
+  draft: { bg: 'var(--bg)', text: 'var(--muted)', border: 'var(--border)', label: 'Not Submitted' },
+  submitted: { bg: 'var(--amber-light)', text: 'var(--amber)', border: 'var(--amber)', label: 'Pending Admin Review' },
+  approved: { bg: 'var(--teal-light)', text: 'var(--teal)', border: 'var(--teal)', label: 'Approved — Official Record' },
+  sent_back: { bg: 'var(--danger-light)', text: 'var(--danger)', border: 'var(--danger)', label: 'Sent Back — Needs Correction' },
+}[subStatus] || { bg: 'var(--bg)', text: 'var(--muted)', border: 'var(--border)', label: 'Not Submitted' });
+
 const MAX_IMAGES = 5;
 
 function ScanProduct() {
   const [productName, setProductName] = useState('');
 
-  // Common state jo dono modes (gallery + camera) share karte hain
-  const [images, setImages] = useState([]); // File objects ka array
-  const [previews, setPreviews] = useState([]); // preview URLs (gallery mode ke liye)
-  const [captureMode, setCaptureMode] = useState('gallery'); // 'gallery' | 'camera'
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [captureMode, setCaptureMode] = useState('gallery');
 
   const [result, setResult] = useState(null);
-  const [imageWarnings, setImageWarnings] = useState(null); // partial-failure info (friend ka backend feature)
+  const [imageWarnings, setImageWarnings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
 
-  // ── Gallery se files add karna (multi-file, max 5 tak) ──
   const handleGalleryFiles = (fileList) => {
     const incoming = Array.from(fileList).filter((f) => f.type.startsWith('image/'));
 
@@ -105,7 +110,6 @@ function ScanProduct() {
     });
   };
 
-  // ── Mode switch karte waqt purana data clear karo (confusion avoid karne ke liye) ──
   const switchMode = (mode) => {
     setCaptureMode(mode);
     setImages([]);
@@ -134,7 +138,8 @@ function ScanProduct() {
 
   const getErrorInfo = (err) => {
     const status = err.response?.status;
-    const serverMsg = err.response?.data?.message;
+    const serverMsg = err.response?.data?.message || '';
+
     if (!err.response) return {
       type: 'network',
       title: 'Connection Failed',
@@ -153,10 +158,31 @@ function ScanProduct() {
       message: 'The uploaded image exceeds the maximum allowed file size.',
       suggestion: 'Compress the image or use a photo under 5MB.',
     };
-    if (status === 422 || serverMsg?.toLowerCase().includes('image')) return {
+
+    // ── Gemini AI unavailability check — MUST be before generic 'image' check ──
+    const isGeminiUnavailable =
+      serverMsg.startsWith('GEMINI_UNAVAILABLE:') ||
+      serverMsg.includes('503') ||
+      serverMsg.toLowerCase().includes('high demand') ||
+      serverMsg.toLowerCase().includes('service unavailable') ||
+      serverMsg.toLowerCase().includes('temporarily unavailable') ||
+      serverMsg.toLowerCase().includes('overloaded');
+
+    if (isGeminiUnavailable) {
+      // Strip the prefix if present
+      const cleanMsg = serverMsg.replace('GEMINI_UNAVAILABLE:', '').trim();
+      return {
+        type: 'unavailable',
+        title: 'AI Service Temporarily Unavailable',
+        message: cleanMsg || 'The Gemini AI service is currently experiencing high demand and cannot process your request.',
+        suggestion: 'This is a temporary issue on Google\'s end. Please wait 1–2 minutes and try scanning again.',
+      };
+    }
+
+    if (status === 422 || serverMsg.toLowerCase().includes('image')) return {
       type: 'image',
       title: 'Image Quality Issue',
-      message: serverMsg || 'AI could not extract text from this image clearly.',
+      message: serverMsg.replace('IMAGE_PROCESSING_FAILED:', '').trim() || 'AI could not extract text from this image clearly.',
       suggestion: 'Use a well-lit, high-resolution, forward-facing photo of the product label.',
     };
     if (status >= 500) return {
@@ -173,14 +199,15 @@ function ScanProduct() {
     };
   };
 
-  // Batch Queue states
-  const [batchQueue, setBatchQueue] = useState([]); // [{ id, productName, images, previews }]
+
+  const [batchQueue, setBatchQueue] = useState([]);
   const [scanProgress, setScanProgress] = useState({ current: 0, total: 0, currentName: '' });
-  const [batchResults, setBatchResults] = useState([]); // Array of inspection objects
+  const [batchResults, setBatchResults] = useState([]);
   const [selectedResultIndex, setSelectedResultIndex] = useState(0);
   const [cameraResetKey, setCameraResetKey] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
-  // Add current product to batch queue
   const handleAddToQueue = (e) => {
     if (e) e.preventDefault();
     if (batchQueue.length >= 5) {
@@ -237,7 +264,6 @@ function ScanProduct() {
   const analyzeAll = async (queueToProcess) => {
     if (!queueToProcess || queueToProcess.length === 0) return;
 
-    // Strict safety cap: maximum 5 products sent to Gemini AI
     const safeQueue = queueToProcess.slice(0, 5);
 
     setError(null);
@@ -274,7 +300,6 @@ function ScanProduct() {
         break;
       }
 
-      // Har product ke baad thoda ruko (rate limit & server stability ke liye)
       if (i < safeQueue.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, 800));
       }
@@ -291,7 +316,6 @@ function ScanProduct() {
 
     let finalQueue = [...batchQueue];
 
-    // Agar user ne inputs fill kar rakhe hain to launch ke waqt auto-add karo (max 5 limit)
     if (productName.trim() && images.length > 0) {
       if (finalQueue.length < 5) {
         const currentItem = {
@@ -334,12 +358,29 @@ function ScanProduct() {
     setError(null);
   };
 
+  const handleSubmitForRecord = async () => {
+    if (!result?._id) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await API.post(`/inspections/${result._id}/submit`);
+      const updatedInspection = response.data.inspection;
+      setResult(updatedInspection);
+      setBatchResults((prev) =>
+        prev.map((r) => (r._id === updatedInspection._id ? updatedInspection : r))
+      );
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || 'Failed to submit inspection');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const st = result ? statusStyle(result.status) : null;
 
   return (
     <div style={{ paddingBottom: '50px' }}>
 
-      {/* ── 1. Modern Page Header Banner with Horizontal Rule Badges ────────────────────────────── */}
       <div
         className="!px-6 sm:!px-10 !py-7 sm:!py-8"
         style={{
@@ -423,7 +464,6 @@ function ScanProduct() {
         </div>
       </div>
 
-      {/* ── Keyframe animations ── */}
       {loading && (
         <style>{`
           @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -449,7 +489,6 @@ function ScanProduct() {
 
       {!result ? (
         <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-          {/* Spacious Main Form Container */}
           <div style={{
             backgroundColor: 'var(--surface)',
             border: loading ? '1px solid rgba(15,110,86,0.3)' : '1px solid var(--border)',
@@ -461,7 +500,6 @@ function ScanProduct() {
             overflow: 'hidden',
           }}>
 
-            {/* ── AI LOADING OVERLAY ── */}
             {loading && (
               <div style={{
                 position: 'absolute', inset: 0, zIndex: 10,
@@ -543,10 +581,8 @@ function ScanProduct() {
                 }} />
               </div>
             )}
-            {/* ── END LOADING OVERLAY ── */}
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-              {/* Product Name */}
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: 'var(--ink)', marginBottom: '8px' }}>
                   <Tag size={15} color="var(--navy)" />
@@ -580,14 +616,12 @@ function ScanProduct() {
                 />
               </div>
 
-              {/* ── Photo Section: Mode Toggle + Gallery/Camera ── */}
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 700, color: 'var(--ink)', marginBottom: '8px' }}>
                   <Upload size={15} color="var(--navy)" />
                   Package Photos (up to {MAX_IMAGES})
                 </label>
 
-                {/* Mode toggle */}
                 <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
                   <button
                     type="button"
@@ -626,7 +660,6 @@ function ScanProduct() {
                   </button>
                 </div>
 
-                {/* Gallery mode: drag-drop zone */}
                 {captureMode === 'gallery' ? (
                   <div
                     onDragEnter={handleDrag}
@@ -704,7 +737,6 @@ function ScanProduct() {
                     )}
                   </div>
                 ) : (
-                  /* Camera mode (1 photo per product limit) */
                   <CameraCapture
                     onImagesChange={(files, prevs) => {
                       setImages(files);
@@ -716,7 +748,6 @@ function ScanProduct() {
                 )}
               </div>
 
-              {/* Premium Error Card */}
               {error && (
                 <div style={{
                   borderRadius: '12px',
@@ -801,7 +832,6 @@ function ScanProduct() {
                 </div>
               )}
 
-              {/* Form Action Buttons: Add to Queue + Submit Scan */}
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '4px' }}>
                 <button
                   type="button"
@@ -872,7 +902,6 @@ function ScanProduct() {
               </div>
             </form>
 
-            {/* ── BATCH QUEUE SECTION ── */}
             {batchQueue.length > 0 && (
               <div style={{
                 marginTop: '24px',
@@ -956,7 +985,6 @@ function ScanProduct() {
           </div>
         </div>
       ) : (
-        /* ── 3. Inspection Result Showcase ────────────────────── */
         st && (
           <div style={{
             backgroundColor: 'var(--surface)',
@@ -968,7 +996,6 @@ function ScanProduct() {
           }}
             className="p-5 sm:p-8"
           >
-            {/* Multi-result batch selector tabs */}
             {batchResults.length > 1 && (
               <div style={{
                 marginBottom: '20px', paddingBottom: '16px',
@@ -1033,38 +1060,102 @@ function ScanProduct() {
                     {st.Icon && <st.Icon size={16} strokeWidth={2.5} />}
                     {st.label}
                   </span>
+
+                  {(() => {
+                    const subSt = submissionStyle(result.submission?.status);
+                    return (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '6px',
+                        backgroundColor: subSt.bg, color: subSt.text,
+                        padding: '5px 14px', borderRadius: '99px', fontSize: '12px', fontWeight: 700,
+                        border: `1px solid ${subSt.border}44`, whiteSpace: 'nowrap',
+                      }}>
+                        {subSt.label}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0 }}>
                   Inspection ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace', wordBreak: 'break-all' }}>{result._id}</strong>
+                  {result.submission?.caseNumber && (
+                    <>
+                      {' · '}Case No: <strong style={{ color: 'var(--teal)' }}>{result.submission.caseNumber}</strong>
+                    </>
+                  )}
                 </p>
+                {result.submission?.status === 'sent_back' && result.submission?.adminRemarks && (
+                  <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '6px', fontWeight: 600 }}>
+                    Admin remarks: {result.submission.adminRemarks}
+                  </p>
+                )}
+                {submitError && (
+                  <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '6px', fontWeight: 600 }}>
+                    {submitError}
+                  </p>
+                )}
               </div>
 
-              <button
-                onClick={resetForm}
-                className="w-full sm:w-auto justify-center"
-                style={{
-                  backgroundColor: 'var(--navy)',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.2s ease',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--teal)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--navy)')}
-              >
-                <RotateCcw size={15} />
-                Scan More Products
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {(!result.submission?.status || result.submission.status === 'draft' || result.submission.status === 'sent_back') && (
+                  <button
+                    onClick={handleSubmitForRecord}
+                    disabled={submitting}
+                    className="w-full sm:w-auto justify-center"
+                    style={{
+                      backgroundColor: submitting ? 'var(--muted)' : 'var(--teal)',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '10px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: submitting ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                        Submitting…
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck size={15} />
+                        {result.submission?.status === 'sent_back' ? 'Resubmit for Record' : 'Submit for Record'}
+                      </>
+                    )}
+                  </button>
+                )}
+
+                <button
+                  onClick={resetForm}
+                  className="w-full sm:w-auto justify-center"
+                  style={{
+                    backgroundColor: 'var(--navy)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    padding: '10px 20px',
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--teal)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--navy)')}
+                >
+                  <RotateCcw size={15} />
+                  Scan More Products
+                </button>
+              </div>
             </div>
 
-            {/* Partial-failure warning (agar kuch images process nahi ho payi) */}
             {imageWarnings && imageWarnings.failedImages?.length > 0 && (
               <div style={{
                 marginBottom: '20px', padding: '12px 16px',

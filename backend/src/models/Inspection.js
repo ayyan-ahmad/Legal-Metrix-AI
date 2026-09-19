@@ -27,7 +27,21 @@ const inspectionSchema = new mongoose.Schema(
       generatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
       generatedAt: { type: Date, default: null },
     },
+    // Submission workflow tracking
+    submission: {
+      status: {
+        type: String,
+        enum: ['draft', 'submitted', 'approved', 'sent_back'],
+        default: 'draft',
+      },
+      caseNumber: { type: String, default: null }, // e.g. LM/2026/00347
+      submittedAt: { type: Date, default: null },
+      reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      reviewedAt: { type: Date, default: null },
+      adminRemarks: { type: String, default: null },
+    },
   },
+
   { timestamps: true }
 );
 

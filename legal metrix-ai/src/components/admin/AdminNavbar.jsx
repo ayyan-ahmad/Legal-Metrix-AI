@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Scale, LayoutDashboard, Users, ClipboardList, Settings, LogOut, User, Menu, X } from 'lucide-react';
+import { Scale, LayoutDashboard, Users, ClipboardList, Settings, LogOut, User, Menu, X, Inbox } from 'lucide-react';
 
 const ADMIN_NAV_LINKS = [
   { to: '/admin', label: 'Overview', Icon: LayoutDashboard },
   { to: '/admin/officers', label: 'Officers', Icon: Users },
   { to: '/admin/inspections', label: 'All Inspections', Icon: ClipboardList },
   { to: '/admin/rules', label: 'Manage Rules', Icon: Settings },
+  { to: '/admin/submissions', label: 'Submissions', Icon: Inbox },
 ];
 
 function AdminNavbar() {
@@ -32,7 +33,7 @@ function AdminNavbar() {
     <nav
       style={{
         backgroundColor: 'var(--navy)',
-        borderBottom: '2px solid var(--amber)', // Admin ko thoda visually alag rakhne ke liye amber border (teal ki jagah)
+        borderBottom: '2px solid var(--amber)',
         position: 'sticky',
         top: 0,
         zIndex: 100,

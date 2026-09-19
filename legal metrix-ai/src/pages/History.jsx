@@ -19,6 +19,7 @@ import {
   X,
   Eye,
   FileText,
+  Clock,
 } from 'lucide-react';
 
 const statusMeta = (status) => ({
@@ -51,6 +52,14 @@ const statusMeta = (status) => ({
   Icon: AlertTriangle,
 });
 
+// NAYA: Submission workflow status ke liye badge styling
+const submissionMeta = (subStatus) => ({
+  draft: { bg: 'var(--bg)', text: 'var(--muted)', border: 'var(--border)', label: 'Not Submitted' },
+  submitted: { bg: 'var(--amber-light)', text: 'var(--amber)', border: 'var(--amber)', label: 'Pending Review' },
+  approved: { bg: 'var(--teal-light)', text: 'var(--teal)', border: 'var(--teal)', label: 'Approved' },
+  sent_back: { bg: 'var(--danger-light)', text: 'var(--danger)', border: 'var(--danger)', label: 'Sent Back' },
+}[subStatus] || { bg: 'var(--bg)', text: 'var(--muted)', border: 'var(--border)', label: 'Not Submitted' });
+
 function History() {
   const [inspections, setInspections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +76,6 @@ function History() {
   });
   const [seizureSubmitting, setSeizureSubmitting] = useState(false);
 
-  // Close drawer on ESC key and prevent body scroll when drawer is open
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -158,7 +166,6 @@ function History() {
     <div style={{ paddingBottom: '50px' }}>
 
       {/* ── 1. Page Header Banner ────────────────────────────── */}
-      {/* Mobile: compact padding, stat pills wrap; Desktop: same flex-row */}
       <div
         className="!px-5 sm:!px-8 !py-6 sm:!py-7"
         style={{
@@ -191,7 +198,6 @@ function History() {
           </p>
         </div>
 
-        {/* Audit Stats Counter Pills — wrap on mobile naturally */}
         <div className="flex gap-2 sm:gap-3 flex-wrap">
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.1)', padding: '8px 14px', borderRadius: '10px',
@@ -226,12 +232,10 @@ function History() {
         overflow: 'hidden',
         marginBottom: selected ? '28px' : '0',
       }}>
-        {/* Controls bar — mobile: stacked, desktop: row */}
         <div
           className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5"
           style={{ borderBottom: '1px solid var(--border)', backgroundColor: '#FCFDFD' }}
         >
-          {/* Search bar */}
           <div style={{ position: 'relative' }} className="w-full sm:max-w-sm">
             <Search size={16} color="var(--muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input
@@ -252,7 +256,6 @@ function History() {
             />
           </div>
 
-          {/* Filter tabs */}
           <div style={{
             display: 'flex',
             backgroundColor: 'var(--bg)',
@@ -290,7 +293,6 @@ function History() {
           </div>
         </div>
 
-        {/* Empty State */}
         {filteredInspections.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center', color: 'var(--muted)' }}>
             <Package size={42} color="var(--border)" style={{ marginBottom: '12px' }} />
@@ -307,6 +309,7 @@ function History() {
             <div className="block sm:hidden divide-y" style={{ borderColor: 'var(--border)' }}>
               {filteredInspections.map((insp, idx) => {
                 const sm = statusMeta(insp.status);
+                const subM = submissionMeta(insp.submission?.status);
                 const isOpen = selected?._id === insp._id;
                 const StatusIcon = sm.Icon;
 
@@ -319,7 +322,6 @@ function History() {
                       transition: 'background 0.15s ease',
                     }}
                   >
-                    {/* Row 1: thumbnail + name + ref */}
                     <div className="flex items-start gap-3 mb-3">
                       {insp.images?.[0] ? (
                         <img
@@ -340,7 +342,6 @@ function History() {
                           REF: #{insp._id.substring(insp._id.length - 8).toUpperCase()}
                         </div>
                       </div>
-                      {/* Status badge top-right */}
                       <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: '4px',
                         backgroundColor: sm.bg, color: sm.text,
@@ -353,7 +354,24 @@ function History() {
                       </span>
                     </div>
 
-                    {/* Row 2: Score + Inspector + Date */}
+                    {/* NAYA: Submission status badge row */}
+                    <div style={{ marginBottom: '10px' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        backgroundColor: subM.bg, color: subM.text,
+                        padding: '3px 9px', borderRadius: '99px', fontSize: '10px', fontWeight: 700,
+                        border: `1px solid ${subM.border}44`,
+                      }}>
+                        <Clock size={10} strokeWidth={2.5} />
+                        {subM.label}
+                      </span>
+                      {insp.submission?.caseNumber && (
+                        <span style={{ fontSize: '10px', color: 'var(--muted)', marginLeft: '8px', fontFamily: 'monospace' }}>
+                          {insp.submission.caseNumber}
+                        </span>
+                      )}
+                    </div>
+
                     <div className="flex items-center gap-4 flex-wrap mb-3">
                       <div>
                         <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>Score</div>
@@ -381,7 +399,6 @@ function History() {
                       </div>
                     </div>
 
-                    {/* Row 3: View button */}
                     <button
                       onClick={() => setSelected(isOpen ? null : insp)}
                       style={{
@@ -412,12 +429,12 @@ function History() {
               })}
             </div>
 
-            {/* ── Desktop Table (≥ sm) — unchanged ── */}
+            {/* ── Desktop Table (≥ sm) ── */}
             <div className="hidden sm:block" style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: 'var(--navy)' }}>
-                    {['Product Item', 'Inspector Officer', 'Score', 'Status', 'Audit Date', 'Action'].map((h, i) => (
+                    {['Product Item', 'Inspector Officer', 'Score', 'Status', 'Submission', 'Audit Date', 'Action'].map((h, i, arr) => (
                       <th
                         key={h}
                         style={{
@@ -427,7 +444,7 @@ function History() {
                           color: 'rgba(255,255,255,0.85)',
                           letterSpacing: '0.5px',
                           textTransform: 'uppercase',
-                          textAlign: i === 5 ? 'right' : 'left',
+                          textAlign: i === arr.length - 1 ? 'right' : 'left',
                         }}
                       >
                         {h}
@@ -438,6 +455,7 @@ function History() {
                 <tbody>
                   {filteredInspections.map((insp, idx) => {
                     const sm = statusMeta(insp.status);
+                    const subM = submissionMeta(insp.submission?.status);
                     const isOpen = selected?._id === insp._id;
                     const StatusIcon = sm.Icon;
 
@@ -452,7 +470,6 @@ function History() {
                           transition: 'background 0.15s ease',
                         }}
                       >
-                        {/* Product details & thumbnail */}
                         <td style={{ padding: '14px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             {insp.images?.[0] ? (
@@ -485,7 +502,6 @@ function History() {
                           </div>
                         </td>
 
-                        {/* Inspector */}
                         <td style={{ padding: '14px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--ink)', fontWeight: 500 }}>
                             <User size={14} color="var(--muted)" />
@@ -493,7 +509,6 @@ function History() {
                           </div>
                         </td>
 
-                        {/* Score */}
                         <td style={{ padding: '14px 20px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{
@@ -506,7 +521,6 @@ function History() {
                           </div>
                         </td>
 
-                        {/* Status */}
                         <td style={{ padding: '14px 20px' }}>
                           <span style={{
                             display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -520,7 +534,26 @@ function History() {
                           </span>
                         </td>
 
-                        {/* Date */}
+                        {/* NAYA: Submission column */}
+                        <td style={{ padding: '14px 20px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                            <span style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '5px',
+                              backgroundColor: subM.bg, color: subM.text,
+                              padding: '3px 10px', borderRadius: '99px', fontSize: '10px', fontWeight: 700,
+                              border: `1px solid ${subM.border}44`, whiteSpace: 'nowrap', width: 'fit-content',
+                            }}>
+                              <Clock size={11} strokeWidth={2.5} />
+                              {subM.label}
+                            </span>
+                            {insp.submission?.caseNumber && (
+                              <span style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'monospace' }}>
+                                {insp.submission.caseNumber}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
                         <td style={{ padding: '14px 20px', fontSize: '13px', color: 'var(--muted)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Calendar size={13} color="var(--muted)" />
@@ -530,7 +563,6 @@ function History() {
                           </div>
                         </td>
 
-                        {/* Action */}
                         <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                           <button
                             id={`view-btn-${insp._id}`}
@@ -584,6 +616,7 @@ function History() {
       {/* ── 3. Modern Slide-Over Audit Report Drawer Overlay ───────────────────── */}
       {selected && (() => {
         const sm = statusMeta(selected.status);
+        const subM = submissionMeta(selected.submission?.status);
         const StatusIcon = sm.Icon;
 
         return (
@@ -617,7 +650,7 @@ function History() {
                 to { transform: translateX(0); }
               }
             `}</style>
-            
+
             <div
               style={{
                 width: '100%',
@@ -633,7 +666,6 @@ function History() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Drawer Sticky Top Header */}
               <div
                 style={{
                   padding: '20px 24px',
@@ -662,11 +694,27 @@ function History() {
                       <StatusIcon size={13} strokeWidth={2.5} />
                       {sm.label}
                     </span>
+                    {/* NAYA: Submission status badge drawer header mein */}
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '5px',
+                      backgroundColor: subM.bg, color: subM.text,
+                      padding: '3px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: 700,
+                      border: `1px solid ${subM.border}44`, whiteSpace: 'nowrap',
+                    }}>
+                      <Clock size={12} strokeWidth={2.5} />
+                      {subM.label}
+                    </span>
                   </div>
                   <div style={{ color: 'var(--muted)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <span>Audit ID: <strong style={{ color: 'var(--ink)', fontFamily: 'monospace' }}>#{selected._id.substring(selected._id.length - 8).toUpperCase()}</strong></span>
                     <span>•</span>
                     <span>Inspected: {new Date(selected.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    {selected.submission?.caseNumber && (
+                      <>
+                        <span>•</span>
+                        <span>Case No: <strong style={{ color: 'var(--teal)' }}>{selected.submission.caseNumber}</strong></span>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -736,7 +784,6 @@ function History() {
                 </div>
               </div>
 
-              {/* Scrollable Drawer Body Content */}
               <div
                 style={{
                   flex: 1,
@@ -747,7 +794,53 @@ function History() {
                   gap: '20px',
                 }}
               >
-                {/* Seizure Memo Actions & Display */}
+                {/* NAYA: Sent-back admin remarks callout, sabse upar taaki officer turant dekh le */}
+                {selected.submission?.status === 'sent_back' && selected.submission?.adminRemarks && (
+                  <div style={{
+                    padding: '14px 18px',
+                    border: '1px solid var(--danger)44',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--danger-light)',
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'flex-start',
+                  }}>
+                    <AlertTriangle size={18} color="var(--danger)" style={{ flexShrink: 0, marginTop: '1px' }} />
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--danger)', marginBottom: '3px' }}>
+                        Sent Back by Admin — Needs Correction
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--ink)' }}>
+                        {selected.submission.adminRemarks}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* NAYA: Approved confirmation callout */}
+                {selected.submission?.status === 'approved' && (
+                  <div style={{
+                    padding: '14px 18px',
+                    border: '1px solid var(--teal)44',
+                    borderRadius: '12px',
+                    backgroundColor: 'var(--teal-light)',
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'center',
+                  }}>
+                    <CheckCircle2 size={18} color="var(--teal)" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--teal)' }}>
+                      Approved by admin
+                      {selected.submission.reviewedAt && (
+                        <span style={{ fontWeight: 500, color: 'var(--ink)' }}>
+                          {' '}on {new Date(selected.submission.reviewedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                      )}
+                      {' '}— this is now an official record.
+                    </div>
+                  </div>
+                )}
+
                 {selected.status === 'fail' && !selected.seizureMemo?.samplesSeized && (
                   <div>
                     <button
@@ -931,7 +1024,6 @@ function History() {
                   </form>
                 )}
 
-                {/* Evidence Breakdown */}
                 <EvidencePanel
                   extractedData={selected.extractedData}
                   violations={selected.violations}
@@ -947,5 +1039,3 @@ function History() {
 }
 
 export default History;
-
-

@@ -135,9 +135,18 @@ async function extractFromMultipleImages(imageInputs) {
         error.message?.toLowerCase().includes('rate limit') ||
         error.message?.toLowerCase().includes('quota');
 
+      const isUnavailable =
+        error.message?.includes('503') ||
+        error.message?.toLowerCase().includes('service unavailable') ||
+        error.message?.toLowerCase().includes('high demand') ||
+        error.message?.toLowerCase().includes('temporarily unavailable') ||
+        error.message?.toLowerCase().includes('overloaded');
+
       failedImages.push({
         imageIndex: i + 1,
-        reason: isRateLimit
+        reason: isUnavailable
+          ? '503 Service Unavailable: Gemini AI is experiencing high demand. Please try again later.'
+          : isRateLimit
           ? 'Rate limit reached - too many requests to AI service'
           : error.message || 'Could not analyze this image',
       });
@@ -151,6 +160,24 @@ async function extractFromMultipleImages(imageInputs) {
 
   // Agar EK bhi image successfully process nahi hui, toh poora request fail maano
   if (successfulExtractions.length === 0) {
+    // Pehle check karo kya saari failures Gemini availability issue ki wajah se thi
+    const allGeminiUnavailable = failedImages.every(f =>
+      f.reason?.toLowerCase().includes('503') ||
+      f.reason?.toLowerCase().includes('service unavailable') ||
+      f.reason?.toLowerCase().includes('high demand') ||
+      f.reason?.toLowerCase().includes('temporarily unavailable') ||
+      f.reason?.toLowerCase().includes('overloaded')
+    );
+
+    if (allGeminiUnavailable) {
+      throw new Error('GEMINI_UNAVAILABLE: The Gemini AI service is currently experiencing high demand and is temporarily unavailable. Please wait a few minutes and try again.');
+    }
+
+    // Specific reason include karo agar ek hi image thi
+    if (failedImages.length === 1 && failedImages[0].reason) {
+      throw new Error('IMAGE_PROCESSING_FAILED: ' + failedImages[0].reason);
+    }
+
     throw new Error('All images failed to process. Please try again with clearer photos.');
   }
 
