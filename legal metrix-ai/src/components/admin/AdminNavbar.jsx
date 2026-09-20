@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Scale, LayoutDashboard, Users, ClipboardList, Settings, LogOut, User, Menu, X, Inbox } from 'lucide-react';
+import API from '../../api/axios';
+import { Scale, LayoutDashboard, Users, ClipboardList, Settings, LogOut, User, Menu, X, Inbox, Bell } from 'lucide-react';
 
 const ADMIN_NAV_LINKS = [
   { to: '/admin', label: 'Overview', Icon: LayoutDashboard },
@@ -16,10 +17,26 @@ function AdminNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingSubmissions, setPendingSubmissions] = useState([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const fetchPendingSubmissions = async () => {
+      try {
+        const response = await API.get('/inspections/submissions');
+        setPendingSubmissions(response.data);
+      } catch {
+        // Notifications are optional; keep the navbar available if the request fails.
+      }
+    };
+    fetchPendingSubmissions();
+    const interval = setInterval(fetchPendingSubmissions, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     setMobileMenuOpen(false);
@@ -41,7 +58,7 @@ function AdminNavbar() {
       }}
       className="px-4 sm:px-8"
     >
-      <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+        <div style={{ height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
         {/* Brand */}
         <Link
           to="/admin"
@@ -92,6 +109,16 @@ function AdminNavbar() {
 
         {/* Desktop User info + logout */}
         <div className="hidden md:flex" style={{ alignItems: 'center', gap: '12px' }}>
+          <div style={{ position: 'relative' }}>
+            <button type="button" onClick={() => setNotificationsOpen((open) => !open)} aria-label="View pending submissions" style={{ position: 'relative', color: '#FFFFFF', background: 'transparent', border: 0, padding: '7px', cursor: 'pointer' }}>
+              <Bell size={20} />
+              {pendingSubmissions.length > 0 && <span style={{ position: 'absolute', top: 1, right: 0, minWidth: '16px', height: '16px', padding: '0 4px', borderRadius: '99px', backgroundColor: 'var(--danger)', color: '#fff', fontSize: '10px', fontWeight: 700, lineHeight: '16px' }}>{pendingSubmissions.length}</span>}
+            </button>
+            {notificationsOpen && <div style={{ position: 'absolute', right: 0, top: '42px', width: '300px', maxHeight: '320px', overflowY: 'auto', background: '#fff', color: 'var(--text)', borderRadius: '10px', boxShadow: '0 12px 30px rgba(15,23,42,.22)', padding: '8px', zIndex: 120 }}>
+              <strong style={{ display: 'block', padding: '8px', fontSize: '14px' }}>Pending submissions</strong>
+              {pendingSubmissions.length === 0 ? <p style={{ margin: '8px', color: '#64748b', fontSize: '13px' }}>No submissions waiting for review.</p> : pendingSubmissions.map((submission) => <Link key={submission._id} to="/admin/submissions" onClick={() => setNotificationsOpen(false)} style={{ display: 'block', padding: '10px 8px', borderTop: '1px solid #e2e8f0', color: 'inherit', textDecoration: 'none' }}><strong style={{ display: 'block', fontSize: '13px' }}>{submission.productName || 'Inspection submission'}</strong><span style={{ color: '#475569', fontSize: '12px' }}>{submission.officer?.name || 'Officer'} is waiting for review</span></Link>)}
+            </div>}
+          </div>
           <span style={{
             color: 'rgba(255,255,255,0.65)',
             fontSize: '13px',

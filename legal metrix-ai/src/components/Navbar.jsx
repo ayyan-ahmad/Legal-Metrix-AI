@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import Toast from './Toast';
-import { Scale, LayoutDashboard, ScanLine, History, BarChart3, Settings, LogOut, User, Menu, X } from 'lucide-react';
+import { Scale, LayoutDashboard, ScanLine, History, BarChart3, Settings, LogOut, User, Menu, X, Bell } from 'lucide-react';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
@@ -18,6 +18,8 @@ function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const prevStatusMap = useRef({}); // { inspectionId: submissionStatus } — pichli poll ki value yaad rakhta hai
 
   // Close mobile menu on route change
@@ -27,6 +29,9 @@ function Navbar() {
 
   const addToast = (toast) => setToasts((prev) => [...prev, { ...toast, id: Date.now() + Math.random() }]);
   const dismissToast = (id) => setToasts((prev) => prev.filter((t) => t.id !== id));
+  const addNotification = (notification) => {
+    setNotifications((prev) => [{ ...notification, id: Date.now() + Math.random(), read: false }, ...prev].slice(0, 10));
+  };
 
   // Apni submissions ka status poll karo — jab approve/sent_back ho, toast dikhao
   useEffect(() => {
@@ -45,12 +50,14 @@ function Navbar() {
 
           if (prevStatus !== currentStatus) {
             if (currentStatus === 'approved') {
+              addNotification({ title: 'Submission approved', message: `${insp.productName} was approved by admin.` });
               addToast({
                 type: 'success',
                 title: 'Submission Approved',
                 message: `${insp.productName} — Case ${insp.submission.caseNumber} approved by admin.`,
               });
             } else if (currentStatus === 'sent_back') {
+              addNotification({ title: 'Correction needed', message: `${insp.productName} was sent back for correction.` });
               addToast({
                 type: 'error',
                 title: 'Sent Back for Correction',
@@ -77,6 +84,11 @@ function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path;
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
+  const toggleNotifications = () => {
+    setNotificationsOpen((open) => !open);
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
+  };
 
   return (
     <>
@@ -165,6 +177,16 @@ function Navbar() {
 
           {/* Desktop User info + logout */}
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '12px' }}>
+            <div style={{ position: 'relative' }}>
+              <button type="button" onClick={toggleNotifications} aria-label="View notifications" style={{ position: 'relative', color: '#FFFFFF', background: 'transparent', border: 0, padding: '7px', cursor: 'pointer' }}>
+                <Bell size={20} />
+                {unreadCount > 0 && <span style={{ position: 'absolute', top: 1, right: 0, minWidth: '16px', height: '16px', padding: '0 4px', borderRadius: '99px', backgroundColor: 'var(--danger)', color: '#fff', fontSize: '10px', fontWeight: 700, lineHeight: '16px' }}>{unreadCount}</span>}
+              </button>
+              {notificationsOpen && <div style={{ position: 'absolute', right: 0, top: '42px', width: '300px', maxHeight: '320px', overflowY: 'auto', background: '#fff', color: 'var(--text)', borderRadius: '10px', boxShadow: '0 12px 30px rgba(15,23,42,.22)', padding: '8px', zIndex: 120 }}>
+                <strong style={{ display: 'block', padding: '8px', fontSize: '14px' }}>Notifications</strong>
+                {notifications.length === 0 ? <p style={{ margin: '8px', color: '#64748b', fontSize: '13px' }}>No new notifications.</p> : notifications.map((notification) => <div key={notification.id} style={{ padding: '10px 8px', borderTop: '1px solid #e2e8f0' }}><strong style={{ fontSize: '13px' }}>{notification.title}</strong><span style={{ display: 'block', color: '#475569', fontSize: '12px', marginTop: '3px' }}>{notification.message}</span></div>)}
+              </div>}
+            </div>
             <span style={{
               color: 'rgba(255,255,255,0.65)',
               fontSize: '13px',
