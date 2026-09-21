@@ -75,6 +75,8 @@ function History() {
     reasonsToBelieve: '',
   });
   const [seizureSubmitting, setSeizureSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -113,6 +115,23 @@ function History() {
       alert(err.response?.data?.message || 'Failed to generate seizure memo');
     } finally {
       setSeizureSubmitting(false);
+    }
+  };
+
+  const handleSubmitForRecord = async (inspectionId) => {
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await API.post(`/inspections/${inspectionId}/submit`);
+      const updatedInspection = response.data.inspection;
+      setSelected(updatedInspection);
+      setInspections((prev) =>
+        prev.map((item) => (item._id === updatedInspection._id ? updatedInspection : item))
+      );
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || 'Failed to submit inspection');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -838,6 +857,50 @@ function History() {
                       )}
                       {' '}— this is now an official record.
                     </div>
+                  </div>
+                )}
+
+                {/* NAYA: Submit Record button for unsubmitted products */}
+                {(!selected.submission?.status || selected.submission.status === 'draft' || selected.submission.status === 'sent_back') && (
+                  <div>
+                    <button
+                      onClick={() => handleSubmitForRecord(selected._id)}
+                      disabled={submitting}
+                      style={{
+                        backgroundColor: submitting ? 'var(--muted)' : 'var(--teal)',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '10px',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        cursor: submitting ? 'not-allowed' : 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        boxShadow: submitting ? 'none' : '0 2px 8px rgba(15,110,86,0.25)',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = 'var(--navy)'; }}
+                      onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = 'var(--teal)'; }}
+                    >
+                      {submitting ? (
+                        <>
+                          <Clock size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                          Submitting…
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck size={15} />
+                          {selected.submission?.status === 'sent_back' ? 'Resubmit for Record' : 'Submit for Record'}
+                        </>
+                      )}
+                    </button>
+                    {submitError && (
+                      <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '8px', fontWeight: 600 }}>
+                        {submitError}
+                      </p>
+                    )}
                   </div>
                 )}
 

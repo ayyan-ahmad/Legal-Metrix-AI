@@ -90,6 +90,25 @@ function AdminInspections() {
     }
   };
 
+  const getSubmissionReview = (submission) => {
+    if (!submission || !['approved', 'sent_back'].includes(submission.status)) {
+      return <span style={{ color: 'var(--muted)', fontSize: '13px' }}>Pending review</span>;
+    }
+
+    const isApproved = submission.status === 'approved';
+    const reviewerName = submission.reviewedBy?.name || 'Admin unavailable';
+
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', fontWeight: 600, color: isApproved ? 'var(--teal)' : 'var(--danger)' }}>
+        {isApproved ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
+        <div>
+          <div>{isApproved ? 'Accepted' : 'Sent back'}</div>
+          <div style={{ color: 'var(--muted)', fontSize: '12px', fontWeight: 500 }}>{reviewerName}</div>
+        </div>
+      </div>
+    );
+  };
+
   const activeFilterCount = (statusFilter ? 1 : 0) + (officerFilter ? 1 : 0);
   const selectedOfficerObj = officers.find(o => o._id === officerFilter);
   const displayOfficerName = selectedOfficerObj ? selectedOfficerObj.name : initialOfficerName;
@@ -268,9 +287,15 @@ function AdminInspections() {
                     </div>
                   </div>
                   
-                  {/* Row 3: Date */}
-                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
-                    {new Date(insp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {/* Row 3: Submission review + Date */}
+                  <div className="flex items-center justify-between gap-3" style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '8px' }}>
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: '3px' }}>Submission review</div>
+                      {getSubmissionReview(insp.submission)}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textAlign: 'right' }}>
+                      {new Date(insp.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -281,7 +306,7 @@ function AdminInspections() {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
-                    {['Product', 'Officer', 'Status', 'Score', 'Violations', 'Date'].map(h => (
+                    {['Product', 'Officer', 'Status', 'Submission review', 'Score', 'Violations', 'Date'].map(h => (
                       <th key={h} style={thStyle}>{h}</th>
                     ))}
                   </tr>
@@ -330,6 +355,11 @@ function AdminInspections() {
                       {/* Status */}
                       <td style={{ padding: '16px 24px' }}>
                         {getStatusBadge(insp.status)}
+                      </td>
+
+                      {/* Submission reviewer */}
+                      <td style={{ padding: '16px 24px' }}>
+                        {getSubmissionReview(insp.submission)}
                       </td>
 
                       {/* Score */}

@@ -108,6 +108,7 @@ router.get('/inspections', protect, adminOnly, async (req, res) => {
 
     const inspections = await Inspection.find(filter)
       .populate('officer', 'name email') // officer ka sirf naam-email chahiye, poora object nahi
+      .populate('submission.reviewedBy', 'name email') // kis admin ne submission review ki, uska naam
       .sort({ createdAt: -1 }) // sabse recent pehle
       .skip(skip)
       .limit(Number(limit));
